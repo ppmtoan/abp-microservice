@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Tasky.SaaS.DomainServices;
 using Tasky.SaaS.Entities;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Permissions;
@@ -17,13 +18,16 @@ public class InvoiceAppService : ApplicationService, IInvoiceAppService
 {
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly ISubscriptionRepository _subscriptionRepository;
+    private readonly InvoiceManager _invoiceManager;
 
     public InvoiceAppService(
         IInvoiceRepository invoiceRepository,
-        ISubscriptionRepository subscriptionRepository)
+        ISubscriptionRepository subscriptionRepository,
+        InvoiceManager invoiceManager)
     {
         _invoiceRepository = invoiceRepository;
         _subscriptionRepository = subscriptionRepository;
+        _invoiceManager = invoiceManager;
     }
 
     public async Task<PagedResultDto<InvoiceDto>> GetListAsync(PagedAndSortedResultRequestDto input)
@@ -81,7 +85,9 @@ public class InvoiceAppService : ApplicationService, IInvoiceAppService
         await CheckPolicyAsync(SaaSPermissions.Invoices.MarkAsPaid);
 
         var invoice = await _invoiceRepository.GetAsync(id);
-        invoice.MarkAsPaid(input.PaymentMethod, input.PaymentReference);
+        
+        // Delegate business logic to domain service
+        _invoiceManager.ProcessPayment(invoice, input.PaymentMethod, input.PaymentReference);
 
         await _invoiceRepository.UpdateAsync(invoice);
         await CurrentUnitOfWork.SaveChangesAsync();
@@ -94,6 +100,15 @@ public class InvoiceAppService : ApplicationService, IInvoiceAppService
         await CheckPolicyAsync(SaaSPermissions.Invoices.Cancel);
 
         var invoice = await _invoiceRepository.GetAsync(id);
+        
+        // Validate cancellation through domain service
+        if (!_invoiceManager.CanCancelInvoice(invoice))
+        {
+            throw new BusinessException(SaaSErrorCodes.CannotPayInvoice)
+                .WithData("InvoiceId", id)
+                .WithData("Status", invoice.Status);
+        }
+        
         invoice.Cancel();
 
         await _invoiceRepository.UpdateAsync(invoice);
@@ -104,19 +119,11 @@ public class InvoiceAppService : ApplicationService, IInvoiceAppService
     {
         await CheckPolicyAsync(SaaSPermissions.Invoices.Default);
 
-        var query = await _invoiceRepository.GetQueryableAsync();
-        var overdueInvoices = await AsyncExecuter.ToListAsync(
-            query.Where(i => i.Status == InvoiceStatus.Pending && i.DueDate < Clock.Now)
-        );
-
-        foreach (var invoice in overdueInvoices)
-        {
-            invoice.MarkAsOverdue();
-        }
-
-        await _invoiceRepository.UpdateManyAsync(overdueInvoices);
+        // Delegate business logic to domain service
+        var processedCount = await _invoiceManager.ProcessOverdueInvoicesAsync();
+        
         await CurrentUnitOfWork.SaveChangesAsync();
 
-        Logger.LogInformation($"Processed {overdueInvoices.Count} overdue invoices");
+        Logger.LogInformation($"Processed {processedCount} overdue invoices");
     }
 }

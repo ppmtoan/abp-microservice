@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Tasky.SaaS.DomainServices;
 using Tasky.SaaS.Entities;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Permissions;
 using Tasky.SaaS.Repositories;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -17,130 +19,59 @@ namespace Tasky.SaaS.TenantProvisioning;
 public class TenantProvisioningAppService : ApplicationService, ITenantProvisioningAppService
 {
     private readonly ITenantRepository _tenantRepository;
-    private readonly ITenantManager _tenantManager;
-    private readonly IEditionRepository _editionRepository;
     private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly IInvoiceRepository _invoiceRepository;
-    private readonly IIdentityUserRepository _userRepository;
-    private readonly IdentityUserManager _userManager;
+    private readonly TenantProvisioningManager _tenantProvisioningManager;
 
     public TenantProvisioningAppService(
         ITenantRepository tenantRepository,
-        ITenantManager tenantManager,
-        IEditionRepository editionRepository,
         ISubscriptionRepository subscriptionRepository,
         IInvoiceRepository invoiceRepository,
-        IIdentityUserRepository userRepository,
-        IdentityUserManager userManager)
+        TenantProvisioningManager tenantProvisioningManager)
     {
         _tenantRepository = tenantRepository;
-        _tenantManager = tenantManager;
-        _editionRepository = editionRepository;
         _subscriptionRepository = subscriptionRepository;
         _invoiceRepository = invoiceRepository;
-        _userRepository = userRepository;
-        _userManager = userManager;
+        _tenantProvisioningManager = tenantProvisioningManager;
     }
 
     [UnitOfWork]
     public virtual async Task<TenantProvisioningResultDto> ProvisionTenantAsync(TenantProvisioningRequestDto input)
     {
-        // This could be made public or protected with rate limiting
-        // For now, require permission
         await CheckPolicyAsync(SaaSPermissions.TenantProvisioning.Default);
 
         try
         {
-            // 1. Validate Edition
-            var edition = await _editionRepository.GetAsync(input.EditionId);
-            if (edition == null || !edition.IsActive)
-            {
-                throw new BusinessException(SaaSErrorCodes.EditionNotFound)
-                    .WithData("EditionId", input.EditionId);
-            }
-
-            // 2. Check if tenant already exists
-            var existingTenant = await _tenantRepository.FindByNameAsync(input.TenantName);
-
-            if (existingTenant != null)
-            {
-                throw new BusinessException(SaaSErrorCodes.TenantAlreadyExists)
-                    .WithData("TenantName", input.TenantName);
-            }
-
-            // 3. Create Tenant
-            var tenant = await _tenantManager.CreateAsync(input.TenantName);
-            await _tenantRepository.InsertAsync(tenant);
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            Guid adminUserId;
-
-            // 4. Create Admin User in Tenant context
-            using (CurrentTenant.Change(tenant.Id))
-            {
-                var adminUser = new IdentityUser(
-                    GuidGenerator.Create(),
-                    input.AdminUserName ?? input.AdminEmail,
-                    input.AdminEmail,
-                    tenant.Id
-                );
-
-                await _userManager.CreateAsync(adminUser, input.AdminPassword);
-                
-                // Assign admin role (assuming it exists)
-                await _userManager.AddToRoleAsync(adminUser, "admin");
-
-                await CurrentUnitOfWork.SaveChangesAsync();
-                adminUserId = adminUser.Id;
-            }
-
-            // 5. Create Subscription
-            var price = input.BillingPeriod == BillingPeriod.Monthly 
-                ? edition.MonthlyPrice 
-                : edition.YearlyPrice;
-
-            var subscription = new Subscription(
-                GuidGenerator.Create(),
-                tenant.Id,
+            // Delegate complex business logic to domain service
+            var result = await _tenantProvisioningManager.ProvisionTenantAsync(
+                input.TenantName,
                 input.EditionId,
                 input.BillingPeriod,
-                Clock.Now,
-                price,
-                autoRenew: true,
-                trialDays: input.TrialDays
+                input.AdminEmail,
+                input.AdminUserName,
+                input.AdminPassword,
+                input.TrialDays
             );
 
-            await _subscriptionRepository.InsertAsync(subscription);
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            // 6. Create Initial Invoice (if not trial)
-            if (!input.TrialDays.HasValue || input.TrialDays.Value == 0)
+            // Persist all entities
+            await _tenantRepository.InsertAsync(result.Tenant);
+            await _subscriptionRepository.InsertAsync(result.Subscription);
+            
+            if (result.InitialInvoice != null)
             {
-                var invoice = new Invoice(
-                    GuidGenerator.Create(),
-                    tenant.Id,
-                    subscription.Id,
-                    GenerateInvoiceNumber(tenant.Id),
-                    Clock.Now,
-                    Clock.Now.AddDays(30), // Due in 30 days
-                    price,
-                    input.BillingPeriod,
-                    subscription.StartDate,
-                    subscription.EndDate
-                );
-
-                await _invoiceRepository.InsertAsync(invoice);
-                await CurrentUnitOfWork.SaveChangesAsync();
+                await _invoiceRepository.InsertAsync(result.InitialInvoice);
             }
 
-            Logger.LogInformation($"Successfully provisioned tenant: {input.TenantName} with admin: {input.AdminEmail}");
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            Logger.LogInformation($"Successfully provisioned tenant: {input.TenantName}");
 
             return new TenantProvisioningResultDto
             {
-                TenantId = tenant.Id,
-                TenantName = tenant.Name,
-                SubscriptionId = subscription.Id,
-                AdminUserId = adminUserId,
+                TenantId = result.Tenant.Id,
+                TenantName = result.Tenant.Name,
+                SubscriptionId = result.Subscription.Id,
+                AdminUserId = result.AdminUserId,
                 AdminEmail = input.AdminEmail,
                 Success = true,
                 Message = "Tenant provisioned successfully"
@@ -151,10 +82,5 @@ public class TenantProvisioningAppService : ApplicationService, ITenantProvision
             Logger.LogError(ex, $"Failed to provision tenant: {input.TenantName}");
             throw;
         }
-    }
-
-    private string GenerateInvoiceNumber(Guid tenantId)
-    {
-        return $"INV-{tenantId.ToString().Substring(0, 8).ToUpper()}-{Clock.Now:yyyyMMddHHmmss}";
     }
 }

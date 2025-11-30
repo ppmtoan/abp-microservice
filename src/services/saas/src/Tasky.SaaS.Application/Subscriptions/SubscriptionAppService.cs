@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Tasky.SaaS.DomainServices;
 using Tasky.SaaS.Entities;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Permissions;
 using Tasky.SaaS.Repositories;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -16,13 +18,16 @@ public class SubscriptionAppService : CrudAppService<Subscription, SubscriptionD
 {
     private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly IEditionRepository _editionRepository;
+    private readonly SubscriptionManager _subscriptionManager;
 
     public SubscriptionAppService(
         ISubscriptionRepository repository,
-        IEditionRepository editionRepository) : base(repository)
+        IEditionRepository editionRepository,
+        SubscriptionManager subscriptionManager) : base(repository)
     {
         _subscriptionRepository = repository;
         _editionRepository = editionRepository;
+        _subscriptionManager = subscriptionManager;
         
         GetPolicyName = SaaSPermissions.Subscriptions.Default;
         GetListPolicyName = SaaSPermissions.Subscriptions.Default;
@@ -33,24 +38,13 @@ public class SubscriptionAppService : CrudAppService<Subscription, SubscriptionD
 
     public override async Task<SubscriptionDto> CreateAsync(CreateSubscriptionDto input)
     {
-        var edition = await _editionRepository.GetAsync(input.EditionId);
-        
-        if (edition == null)
-        {
-            throw new BusinessException(SaaSErrorCodes.EditionNotFound)
-                .WithData("EditionId", input.EditionId);
-        }
-
-        var price = input.Price > 0 ? input.Price : 
-            (input.BillingPeriod == BillingPeriod.Monthly ? edition.MonthlyPrice : edition.YearlyPrice);
-
-        var subscription = new Subscription(
-            GuidGenerator.Create(),
-            input.TenantId ?? CurrentTenant.Id,
+        // Delegate business logic to domain service
+        var subscription = await _subscriptionManager.CreateSubscriptionAsync(
+            input.TenantId ?? CurrentTenant.Id.Value,
             input.EditionId,
             input.BillingPeriod,
-            input.StartDate ?? Clock.Now,
-            price,
+            input.StartDate,
+            input.Price > 0 ? new Money(input.Price) : null,
             input.AutoRenew,
             input.TrialDays
         );
@@ -67,7 +61,7 @@ public class SubscriptionAppService : CrudAppService<Subscription, SubscriptionD
 
         var subscription = await GetEntityByIdAsync(id);
         
-        subscription.UpdateBillingPeriod(input.BillingPeriod, input.Price);
+        subscription.UpdateBillingPeriod(input.BillingPeriod, new Money(input.Price));
         subscription.AutoRenew = input.AutoRenew;
 
         await _subscriptionRepository.UpdateAsync(subscription);
@@ -102,7 +96,9 @@ public class SubscriptionAppService : CrudAppService<Subscription, SubscriptionD
         await CheckPolicyAsync(SaaSPermissions.Subscriptions.Manage);
 
         var subscription = await GetEntityByIdAsync(id);
-        subscription.Renew();
+        
+        // Delegate business logic to domain service
+        await _subscriptionManager.RenewSubscriptionAsync(subscription);
 
         await _subscriptionRepository.UpdateAsync(subscription);
         await CurrentUnitOfWork.SaveChangesAsync();
@@ -124,7 +120,9 @@ public class SubscriptionAppService : CrudAppService<Subscription, SubscriptionD
         await CheckPolicyAsync(SaaSPermissions.Subscriptions.Manage);
 
         var subscription = await GetEntityByIdAsync(id);
-        subscription.Suspend();
+        
+        // Delegate business logic to domain service
+        _subscriptionManager.SuspendSubscription(subscription, "Suspended by administrator");
 
         await _subscriptionRepository.UpdateAsync(subscription);
         await CurrentUnitOfWork.SaveChangesAsync();
