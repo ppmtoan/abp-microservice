@@ -40,7 +40,6 @@ namespace Tasky;
 [DependsOn(typeof(IdentityServiceEntityFrameworkCoreModule))]
 [DependsOn(typeof(SaaSEntityFrameworkCoreModule))]
 [DependsOn(typeof(TaskyMicroserviceModule))]
-[DependsOn(typeof(TaskyServiceDefaultsModule))]
 public class TaskyAuthServerModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

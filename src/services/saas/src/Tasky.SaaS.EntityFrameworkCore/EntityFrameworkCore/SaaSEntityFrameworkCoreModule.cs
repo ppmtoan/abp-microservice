@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.PostgreSql;
-using Volo.Abp.Identity.EntityFrameworkCore;
 using Volo.Abp.Modularity;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
@@ -12,7 +11,6 @@ namespace Tasky.SaaS.EntityFrameworkCore;
 
 [DependsOn(typeof(AbpEntityFrameworkCorePostgreSqlModule))]
 [DependsOn(typeof(AbpTenantManagementEntityFrameworkCoreModule))]
-[DependsOn(typeof(AbpIdentityEntityFrameworkCoreModule))]
 [DependsOn(typeof(SaaSDomainModule))]
 [DependsOn(typeof(TaskySharedModule))]
 public class SaaSEntityFrameworkCoreModule : AbpModule
@@ -29,7 +27,6 @@ public class SaaSEntityFrameworkCoreModule : AbpModule
                 db =>
                 {
                     db.MappedConnections.Add("AbpTenantManagement");
-                    db.MappedConnections.Add("AbpIdentity");
                 }
             );
         });

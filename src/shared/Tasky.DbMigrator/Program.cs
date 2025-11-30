@@ -14,7 +14,6 @@ internal class Program
 
         var builder = Host.CreateApplicationBuilder(args);
 
-        builder.AddServiceDefaults();
 
         builder.AddNpgsqlDbContext<AdministrationDbContext>(
             connectionName: TaskyNames.AdministrationDb
