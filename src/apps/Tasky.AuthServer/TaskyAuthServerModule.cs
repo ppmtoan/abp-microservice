@@ -11,8 +11,9 @@ using Volo.Abp;
 using Volo.Abp.Account;
 using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
+// Theme removed - AuthServer operates in API-only mode for Angular frontend
+// using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
+// using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Auditing;
@@ -30,7 +31,8 @@ namespace Tasky;
 [DependsOn(typeof(AbpAccountApplicationModule))]
 [DependsOn(typeof(AbpAccountHttpApiModule))]
 [DependsOn(typeof(AbpAccountWebOpenIddictModule))]
-[DependsOn(typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule))]
+// Theme removed - AuthServer operates in API-only mode for Angular frontend
+// [DependsOn(typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule))]
 [DependsOn(typeof(AbpAspNetCoreSerilogModule))]
 [DependsOn(typeof(AbpAutofacModule))]
 [DependsOn(typeof(AbpCachingStackExchangeRedisModule))]
@@ -63,16 +65,17 @@ public class TaskyAuthServerModule : AbpModule
         var hostingEnvironment = context.Services.GetHostingEnvironment();
         var configuration = context.Services.GetConfiguration();
 
-        Configure<AbpBundlingOptions>(options =>
-        {
-            options.StyleBundles.Configure(
-                LeptonXLiteThemeBundles.Styles.Global,
-                bundle =>
-                {
-                    bundle.AddFiles("/global-styles.css");
-                }
-            );
-        });
+        // Bundling configuration removed - not needed for API-only mode
+        // Configure<AbpBundlingOptions>(options =>
+        // {
+        //     options.StyleBundles.Configure(
+        //         LeptonXLiteThemeBundles.Styles.Global,
+        //         bundle =>
+        //         {
+        //             bundle.AddFiles("/global-styles.css");
+        //         }
+        //     );
+        // });
 
         Configure<AbpAuditingOptions>(options =>
         {
