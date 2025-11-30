@@ -5,6 +5,7 @@ using Tasky.SaaS.Entities;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Permissions;
 using Tasky.SaaS.Repositories;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -53,15 +54,15 @@ public class HostAdminAppService : ApplicationService, IHostAdminAppService
 
         var mrr = activeSubscriptions
             .Where(s => s.BillingPeriod == BillingPeriod.Monthly)
-            .Sum(s => s.Price);
+            .Sum(s => s.Price.Amount);
 
         var arr = activeSubscriptions
             .Where(s => s.BillingPeriod == BillingPeriod.Yearly)
-            .Sum(s => s.Price);
+            .Sum(s => s.Price.Amount);
 
         var totalRevenue = invoices
             .Where(i => i.Status == InvoiceStatus.Paid)
-            .Sum(i => i.Amount);
+            .Sum(i => i.Amount.Amount);
 
         return new HostMetricsDto
         {
@@ -120,7 +121,7 @@ public class HostAdminAppService : ApplicationService, IHostAdminAppService
 
             var revenue = invoices
                 .Where(i => i.TenantId == tenant.Id)
-                .Sum(i => i.Amount);
+                .Sum(i => i.Amount.Amount);
 
             return new TenantDetailDto
             {
@@ -130,7 +131,7 @@ public class HostAdminAppService : ApplicationService, IHostAdminAppService
                 CreationTime = tenant.CreationTime,
                 EditionName = edition?.DisplayName,
                 SubscriptionStatus = subscription?.Status.ToString(),
-                SubscriptionEndDate = subscription?.EndDate,
+                SubscriptionEndDate = subscription?.SubscriptionPeriod.EndDate,
                 TotalRevenue = revenue,
                 ConnectionStrings = tenant.ConnectionStrings?.Select(cs => cs.Name).ToList() ?? new System.Collections.Generic.List<string>()
             };
@@ -159,10 +160,10 @@ public class HostAdminAppService : ApplicationService, IHostAdminAppService
         }
 
         var invoicesQuery = await _invoiceRepository.GetQueryableAsync();
-        var revenue = await AsyncExecuter.SumAsync(
-            invoicesQuery.Where(i => i.TenantId == tenantId && i.Status == InvoiceStatus.Paid),
-            i => i.Amount
+        var paidInvoices = await AsyncExecuter.ToListAsync(
+            invoicesQuery.Where(i => i.TenantId == tenantId && i.Status == InvoiceStatus.Paid)
         );
+        var revenue = paidInvoices.Sum(i => i.Amount.Amount);
 
         return new TenantDetailDto
         {
@@ -172,7 +173,7 @@ public class HostAdminAppService : ApplicationService, IHostAdminAppService
             CreationTime = tenant.CreationTime,
             EditionName = edition?.DisplayName,
             SubscriptionStatus = subscription?.Status.ToString(),
-            SubscriptionEndDate = subscription?.EndDate,
+            SubscriptionEndDate = subscription?.SubscriptionPeriod.EndDate,
             TotalRevenue = revenue,
             ConnectionStrings = tenant.ConnectionStrings?.Select(cs => cs.Name).ToList() ?? new System.Collections.Generic.List<string>()
         };

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Repositories;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -66,9 +67,18 @@ public class TenantAdminAppService : ApplicationService, ITenantAdminAppService
 
         var userCount = (int)await _userRepository.GetCountAsync();
 
-        var featureLimits = string.IsNullOrEmpty(edition?.FeatureLimits)
-            ? new System.Collections.Generic.Dictionary<string, object>()
-            : JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, object>>(edition.FeatureLimits);
+        var featureLimits = edition?.FeatureLimits != null
+            ? new System.Collections.Generic.Dictionary<string, object>
+            {
+                ["MaxUsers"] = edition.FeatureLimits.MaxUsers,
+                ["MaxProjects"] = edition.FeatureLimits.MaxProjects,
+                ["StorageQuotaGB"] = edition.FeatureLimits.StorageQuotaGB,
+                ["APICallsPerMonth"] = edition.FeatureLimits.APICallsPerMonth,
+                ["EnableAdvancedReports"] = edition.FeatureLimits.EnableAdvancedReports,
+                ["EnablePrioritySupport"] = edition.FeatureLimits.EnablePrioritySupport,
+                ["EnableCustomBranding"] = edition.FeatureLimits.EnableCustomBranding
+            }
+            : new System.Collections.Generic.Dictionary<string, object>();
 
         return new TenantDashboardDto
         {
@@ -77,10 +87,10 @@ public class TenantAdminAppService : ApplicationService, ITenantAdminAppService
             EditionName = edition?.DisplayName,
             FeatureLimits = featureLimits,
             SubscriptionStatus = subscription.Status.ToString(),
-            SubscriptionEndDate = subscription.EndDate,
+            SubscriptionEndDate = subscription.SubscriptionPeriod.EndDate,
             NextBillingDate = subscription.NextBillingDate,
-            DaysRemaining = (subscription.EndDate - Clock.Now).Days,
-            CurrentPlanPrice = subscription.Price,
+            DaysRemaining = subscription.SubscriptionPeriod.DaysRemaining(),
+            CurrentPlanPrice = subscription.Price.Amount,
             BillingPeriod = subscription.BillingPeriod.ToString(),
             TotalUsers = userCount,
             PendingInvoices = invoices.Count(i => i.Status == InvoiceStatus.Pending),
