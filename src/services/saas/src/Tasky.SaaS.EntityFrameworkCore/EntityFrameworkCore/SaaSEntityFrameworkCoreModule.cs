@@ -45,7 +45,7 @@ public class SaaSEntityFrameworkCoreModule : AbpModule
             options.AddDefaultRepositories(true);
             
             // Register custom repositories
-            options.AddRepository<Entities.Subscription, SubscriptionRepository>();
+            options.AddRepository<Tasky.SaaS.Aggregates.SubscriptionAggregate.Subscription, SubscriptionRepository>();
         });
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tasky.SaaS.Entities;
+using Tasky.SaaS.Aggregates.EditionAggregate;
+using Tasky.SaaS.Aggregates.SubscriptionAggregate;
+using Tasky.SaaS.Aggregates.BillingAggregate;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
 using Volo.Abp.EntityFrameworkCore.Modeling;
