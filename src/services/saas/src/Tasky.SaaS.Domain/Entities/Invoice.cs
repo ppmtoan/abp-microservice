@@ -1,5 +1,6 @@
 using System;
 using Tasky.SaaS.Enums;
+using Tasky.SaaS.Events;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -93,6 +94,17 @@ public class Invoice : FullAuditedAggregateRoot<Guid>, IMultiTenant
         PaidDate = DateTime.UtcNow;
         PaymentMethod = paymentMethod ?? "Manual";
         PaymentReference = paymentReference;
+        
+        AddDistributedEvent(new InvoicePaidEvent(
+            invoiceId: Id,
+            subscriptionId: SubscriptionId,
+            tenantId: TenantId,
+            amount: Amount,
+            paidDate: PaidDate.Value,
+            paymentMethod: PaymentMethod,
+            paymentReference: PaymentReference,
+            invoiceNumber: InvoiceNumber
+        ));
     }
 
     public void MarkAsOverdue()

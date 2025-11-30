@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tasky.SaaS.Events;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -134,11 +135,23 @@ public class Edition : FullAuditedAggregateRoot<Guid>
     public void Activate()
     {
         IsActive = true;
+        
+        AddDistributedEvent(new EditionActivatedEvent(
+            editionId: Id,
+            editionName: Name,
+            isActivated: true
+        ));
     }
 
     public void Deactivate()
     {
         IsActive = false;
+        
+        AddDistributedEvent(new EditionActivatedEvent(
+            editionId: Id,
+            editionName: Name,
+            isActivated: false
+        ));
     }
 
     public void UpdateDisplayOrder(int displayOrder)

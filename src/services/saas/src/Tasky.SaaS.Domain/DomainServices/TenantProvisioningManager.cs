@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tasky.SaaS.Entities;
 using Tasky.SaaS.Enums;
+using Tasky.SaaS.Events;
 using Tasky.SaaS.Repositories;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
@@ -107,6 +108,8 @@ public class TenantProvisioningManager : DomainService
 
             Logger.LogInformation($"Generated initial invoice for tenant: {tenant.Id}");
         }
+
+        Logger.LogInformation($"Tenant provisioning completed: {tenantName} (ID: {tenant.Id})");
 
         return new TenantProvisioningResult
         {

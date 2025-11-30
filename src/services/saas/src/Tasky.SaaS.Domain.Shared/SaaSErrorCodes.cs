@@ -16,6 +16,7 @@ public static class SaaSErrorCodes
     public const string CannotDowngradeInactiveSubscription = "SaaS:002E";
     public const string CannotSuspendInactiveSubscription = "SaaS:002F";
     public const string CannotInvoiceInactiveSubscription = "SaaS:002G";
+    public const string InvalidSubscriptionStatusTransition = "SaaS:002H";
     
     // Invoice errors
     public const string InvoiceNotFound = "SaaS:003";
@@ -27,6 +28,7 @@ public static class SaaSErrorCodes
     // Tenant errors
     public const string TenantNotAvailable = "SaaS:004";
     public const string TenantAlreadyExists = "SaaS:005";
+    public const string TenantMismatch = "SaaS:004A";
     
     // User errors
     public const string UserEmailAlreadyExists = "SaaS:009";

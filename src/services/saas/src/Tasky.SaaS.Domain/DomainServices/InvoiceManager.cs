@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Tasky.SaaS.Entities;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Repositories;
+using Tasky.SaaS.Specifications;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp;
 using Volo.Abp.Domain.Services;
@@ -105,10 +106,9 @@ public class InvoiceManager : DomainService
     /// </summary>
     public async Task<int> ProcessOverdueInvoicesAsync()
     {
-        var query = await _invoiceRepository.GetQueryableAsync();
-        var overdueInvoices = query
-            .Where(i => i.Status == InvoiceStatus.Pending && i.DueDate < Clock.Now)
-            .ToList();
+        // Use specification for better reusability and testability
+        var overdueSpec = new OverdueInvoicesSpecification();
+        var overdueInvoices = await _invoiceRepository.GetListAsync(overdueSpec);
 
         foreach (var invoice in overdueInvoices)
         {

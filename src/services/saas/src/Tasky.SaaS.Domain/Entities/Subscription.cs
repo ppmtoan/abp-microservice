@@ -1,5 +1,6 @@
 using System;
 using Tasky.SaaS.Enums;
+using Tasky.SaaS.Events;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -107,24 +108,31 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public void Cancel()
     {
-        Status = SubscriptionStatus.Cancelled;
+        ChangeStatus(SubscriptionStatus.Cancelled);
         AutoRenew = false;
         NextBillingDate = null;
+        
+        AddDistributedEvent(new SubscriptionCancelledEvent(
+            subscriptionId: Id,
+            tenantId: TenantId,
+            editionId: EditionId,
+            subscriptionEndDate: SubscriptionPeriod.EndDate
+        ));
     }
 
     public void Suspend()
     {
-        Status = SubscriptionStatus.Suspended;
+        ChangeStatus(SubscriptionStatus.Suspended);
     }
 
     public void Activate()
     {
-        Status = SubscriptionStatus.Active;
+        ChangeStatus(SubscriptionStatus.Active);
     }
 
     public void MarkAsExpired()
     {
-        Status = SubscriptionStatus.Expired;
+        ChangeStatus(SubscriptionStatus.Expired);
         AutoRenew = false;
     }
 
@@ -183,5 +191,14 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         AutoRenew = false;
         NextBillingDate = null;
+    }
+
+    /// <summary>
+    /// Changes subscription status with state machine validation.
+    /// </summary>
+    private void ChangeStatus(SubscriptionStatus newStatus)
+    {
+        SubscriptionStateMachine.ValidateTransition(Status, newStatus);
+        Status = newStatus;
     }
 }
