@@ -8,30 +8,31 @@ namespace Tasky.SaaS.Entities;
 
 /// <summary>
 /// Represents a tenant's subscription to an edition with billing information
+/// Aggregate Root - controls all changes through methods
 /// </summary>
 public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
-    public Guid? TenantId { get; set; }
+    public Guid? TenantId { get; private set; }
     
-    public Guid EditionId { get; set; }
+    public Guid EditionId { get; private set; }
     
-    public Edition Edition { get; set; }
+    public Edition Edition { get; private set; }
     
-    public BillingPeriod BillingPeriod { get; set; }
+    public BillingPeriod BillingPeriod { get; private set; }
     
-    public DateRange SubscriptionPeriod { get; set; }
+    public DateRange SubscriptionPeriod { get; private set; }
     
-    public DateTime? NextBillingDate { get; set; }
+    public DateTime? NextBillingDate { get; private set; }
     
-    public bool AutoRenew { get; set; }
+    public bool AutoRenew { get; private set; }
     
-    public Money Price { get; set; }
+    public Money Price { get; private set; }
     
-    public SubscriptionStatus Status { get; set; }
+    public SubscriptionStatus Status { get; private set; }
     
-    public int? TrialDays { get; set; }
+    public int? TrialDays { get; private set; }
     
-    public DateTime? TrialEndDate { get; set; }
+    public DateTime? TrialEndDate { get; private set; }
 
     protected Subscription()
     {
@@ -47,6 +48,15 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
         bool autoRenew = true,
         int? trialDays = null) : base(id)
     {
+        if (editionId == Guid.Empty)
+            throw new ArgumentException("Edition ID cannot be empty", nameof(editionId));
+        
+        if (price == null)
+            throw new ArgumentNullException(nameof(price));
+        
+        if (trialDays.HasValue && trialDays.Value < 0)
+            throw new ArgumentException("Trial days cannot be negative", nameof(trialDays));
+        
         TenantId = tenantId;
         EditionId = editionId;
         BillingPeriod = billingPeriod;
@@ -150,10 +160,28 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public void UpdateBillingPeriod(BillingPeriod newPeriod, Money newPrice)
     {
+        if (newPrice == null)
+            throw new ArgumentNullException(nameof(newPrice));
+        
         BillingPeriod = newPeriod;
         Price = newPrice;
         var endDate = CalculateEndDate(SubscriptionPeriod.StartDate, newPeriod);
         SubscriptionPeriod = new DateRange(SubscriptionPeriod.StartDate, endDate);
         NextBillingDate = CalculateNextBillingDate();
+    }
+
+    public void EnableAutoRenew()
+    {
+        if (Status == SubscriptionStatus.Cancelled)
+            throw new InvalidOperationException("Cannot enable auto-renew for cancelled subscription");
+        
+        AutoRenew = true;
+        NextBillingDate = CalculateNextBillingDate();
+    }
+
+    public void DisableAutoRenew()
+    {
+        AutoRenew = false;
+        NextBillingDate = null;
     }
 }

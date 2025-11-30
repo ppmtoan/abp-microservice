@@ -184,7 +184,7 @@ public class SubscriptionManager : DomainService
         }
 
         // Business Rule: Downgrade takes effect at end of current billing period
-        currentSubscription.AutoRenew = false;
+        currentSubscription.DisableAutoRenew();
 
         // Create new subscription starting when current one ends
         var newPrice = newEdition.GetPriceForPeriod(currentSubscription.BillingPeriod);
@@ -195,7 +195,7 @@ public class SubscriptionManager : DomainService
             currentSubscription.BillingPeriod,
             currentSubscription.SubscriptionPeriod.EndDate,
             newPrice,
-            currentSubscription.AutoRenew,
+            false, // Don't auto-renew the downgraded subscription initially
             null
         );
 

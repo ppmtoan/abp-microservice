@@ -62,7 +62,15 @@ public class SubscriptionAppService : CrudAppService<Subscription, SubscriptionD
         var subscription = await GetEntityByIdAsync(id);
         
         subscription.UpdateBillingPeriod(input.BillingPeriod, new Money(input.Price));
-        subscription.AutoRenew = input.AutoRenew;
+        
+        if (input.AutoRenew)
+        {
+            subscription.EnableAutoRenew();
+        }
+        else
+        {
+            subscription.DisableAutoRenew();
+        }
 
         await _subscriptionRepository.UpdateAsync(subscription);
         await CurrentUnitOfWork.SaveChangesAsync();
