@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Tasky.SaaS.Enums;
 using Volo.Abp;
 
-namespace Tasky.SaaS.Entities;
+namespace Tasky.SaaS.Aggregates.SubscriptionAggregate;
 
 /// <summary>
 /// State machine for validating subscription status transitions.

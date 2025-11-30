@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Tasky.SaaS.Aggregates.SubscriptionAggregate;
 using Tasky.SaaS.Events;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 
-namespace Tasky.SaaS.Entities;
+namespace Tasky.SaaS.Aggregates.EditionAggregate;
 
 /// <summary>
 /// Represents a SaaS Edition (Plan) that defines feature limits and capabilities

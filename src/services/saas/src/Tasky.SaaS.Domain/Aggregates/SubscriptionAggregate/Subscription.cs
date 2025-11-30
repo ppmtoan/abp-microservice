@@ -1,11 +1,12 @@
 using System;
+using Tasky.SaaS.Aggregates.EditionAggregate;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Events;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 
-namespace Tasky.SaaS.Entities;
+namespace Tasky.SaaS.Aggregates.SubscriptionAggregate;
 
 /// <summary>
 /// Represents a tenant's subscription to an edition with billing information

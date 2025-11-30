@@ -1,11 +1,12 @@
 using System;
+using Tasky.SaaS.Aggregates.SubscriptionAggregate;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Events;
 using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 
-namespace Tasky.SaaS.Entities;
+namespace Tasky.SaaS.Aggregates.BillingAggregate;
 
 /// <summary>
 /// Represents an invoice for a subscription billing period
