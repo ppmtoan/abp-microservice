@@ -4,7 +4,8 @@ namespace Tasky.SaaS.Invoices;
 
 public class MarkInvoiceAsPaidDto
 {
-    [StringLength(128)]
+    [Required]
+    [StringLength(128, MinimumLength = 2)]
     public string PaymentMethod { get; set; }
     
     [StringLength(256)]

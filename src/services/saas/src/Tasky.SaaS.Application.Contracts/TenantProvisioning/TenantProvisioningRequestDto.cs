@@ -1,13 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Tasky.SaaS.Enums;
+using Tasky.SaaS.Validation;
 
 namespace Tasky.SaaS.TenantProvisioning;
 
 public class TenantProvisioningRequestDto
 {
     [Required]
-    [StringLength(64)]
+    [StringLength(64, MinimumLength = 3)]
     public string TenantName { get; set; }
     
     [Required]
@@ -16,10 +17,10 @@ public class TenantProvisioningRequestDto
     public string AdminEmail { get; set; }
     
     [Required]
-    [StringLength(128)]
+    [StringLength(128, MinimumLength = 6)]
     public string AdminPassword { get; set; }
     
-    [StringLength(128)]
+    [StringLength(128, MinimumLength = 3)]
     public string AdminUserName { get; set; }
     
     [Required]
@@ -28,5 +29,6 @@ public class TenantProvisioningRequestDto
     [Required]
     public BillingPeriod BillingPeriod { get; set; }
     
+    [Range(0, 90, ErrorMessage = "Trial period cannot exceed 90 days")]
     public int? TrialDays { get; set; }
 }
