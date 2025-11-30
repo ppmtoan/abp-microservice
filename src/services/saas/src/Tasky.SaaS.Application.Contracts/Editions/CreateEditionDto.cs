@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Tasky.SaaS.Validation;
 
 namespace Tasky.SaaS.Editions;
 
@@ -16,15 +17,21 @@ public class CreateEditionDto
     [StringLength(1024)]
     public string Description { get; set; }
     
+    [Required]
     [Range(0, double.MaxValue)]
     public decimal MonthlyPrice { get; set; }
     
+    [Required]
     [Range(0, double.MaxValue)]
+    [GreaterThan(nameof(MonthlyPrice), ErrorMessage = "Yearly price must be greater than monthly price")]
     public decimal YearlyPrice { get; set; }
     
     public bool IsActive { get; set; } = true;
     
+    [Range(0, int.MaxValue)]
     public int DisplayOrder { get; set; }
     
+    [Required]
+    [ValidFeatureLimits(ErrorMessage = "Feature limits must contain MaxUsers, MaxProjects, StorageQuotaGB, and APICallsPerMonth with positive values")]
     public Dictionary<string, object> FeatureLimits { get; set; }
 }
