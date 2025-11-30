@@ -1,5 +1,6 @@
 using System;
 using Tasky.SaaS.Enums;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 
@@ -16,13 +17,13 @@ public class Invoice : FullAuditedAggregateRoot<Guid>, IMultiTenant
     
     public Subscription Subscription { get; set; }
     
-    public string InvoiceNumber { get; set; }
+    public InvoiceNumber InvoiceNumber { get; set; }
     
     public DateTime InvoiceDate { get; set; }
     
     public DateTime DueDate { get; set; }
     
-    public decimal Amount { get; set; }
+    public Money Amount { get; set; }
     
     public InvoiceStatus Status { get; set; }
     
@@ -34,9 +35,7 @@ public class Invoice : FullAuditedAggregateRoot<Guid>, IMultiTenant
     
     public BillingPeriod BillingPeriod { get; set; }
     
-    public DateTime PeriodStart { get; set; }
-    
-    public DateTime PeriodEnd { get; set; }
+    public DateRange BillingPeriodRange { get; set; }
     
     public string Notes { get; set; }
 
@@ -48,13 +47,12 @@ public class Invoice : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Guid id,
         Guid? tenantId,
         Guid subscriptionId,
-        string invoiceNumber,
+        InvoiceNumber invoiceNumber,
         DateTime invoiceDate,
         DateTime dueDate,
-        decimal amount,
+        Money amount,
         BillingPeriod billingPeriod,
-        DateTime periodStart,
-        DateTime periodEnd) : base(id)
+        DateRange billingPeriodRange) : base(id)
     {
         TenantId = tenantId;
         SubscriptionId = subscriptionId;
@@ -64,8 +62,7 @@ public class Invoice : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Amount = amount;
         Status = InvoiceStatus.Pending;
         BillingPeriod = billingPeriod;
-        PeriodStart = periodStart;
-        PeriodEnd = periodEnd;
+        BillingPeriodRange = billingPeriodRange;
     }
 
     public void MarkAsPaid(string paymentMethod = null, string paymentReference = null)
@@ -87,5 +84,20 @@ public class Invoice : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public void Cancel()
     {
         Status = InvoiceStatus.Cancelled;
+    }
+
+    public bool IsOverdue()
+    {
+        return Status == InvoiceStatus.Pending && DateTime.UtcNow > DueDate;
+    }
+
+    public int DaysOverdue()
+    {
+        if (!IsOverdue())
+        {
+            return 0;
+        }
+
+        return (DateTime.UtcNow - DueDate).Days;
     }
 }

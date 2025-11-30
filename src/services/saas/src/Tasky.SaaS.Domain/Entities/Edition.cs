@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Tasky.SaaS.Entities;
@@ -15,18 +16,15 @@ public class Edition : FullAuditedAggregateRoot<Guid>
     
     public string Description { get; set; }
     
-    public decimal MonthlyPrice { get; set; }
+    public Money MonthlyPrice { get; set; }
     
-    public decimal YearlyPrice { get; set; }
+    public Money YearlyPrice { get; set; }
     
     public bool IsActive { get; set; }
     
     public int DisplayOrder { get; set; }
     
-    /// <summary>
-    /// Feature limits stored as JSON (e.g., MaxUsers, StorageQuotaGB, EnablePremiumFeature, ApiCallLimit)
-    /// </summary>
-    public string FeatureLimits { get; set; }
+    public FeatureLimits FeatureLimits { get; set; }
     
     public ICollection<Subscription> Subscriptions { get; set; }
 
@@ -40,9 +38,9 @@ public class Edition : FullAuditedAggregateRoot<Guid>
         string name,
         string displayName,
         string description,
-        decimal monthlyPrice,
-        decimal yearlyPrice,
-        string featureLimits,
+        Money monthlyPrice,
+        Money yearlyPrice,
+        FeatureLimits featureLimits,
         bool isActive = true,
         int displayOrder = 0) : base(id)
     {
@@ -55,5 +53,21 @@ public class Edition : FullAuditedAggregateRoot<Guid>
         IsActive = isActive;
         DisplayOrder = displayOrder;
         Subscriptions = new List<Subscription>();
+    }
+
+    public Money GetPriceForPeriod(Enums.BillingPeriod period)
+    {
+        return period == Enums.BillingPeriod.Yearly ? YearlyPrice : MonthlyPrice;
+    }
+
+    public void UpdatePricing(Money monthlyPrice, Money yearlyPrice)
+    {
+        MonthlyPrice = monthlyPrice;
+        YearlyPrice = yearlyPrice;
+    }
+
+    public void UpdateFeatureLimits(FeatureLimits newLimits)
+    {
+        FeatureLimits = newLimits;
     }
 }

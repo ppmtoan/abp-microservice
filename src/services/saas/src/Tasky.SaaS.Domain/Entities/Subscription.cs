@@ -1,5 +1,6 @@
 using System;
 using Tasky.SaaS.Enums;
+using Tasky.SaaS.ValueObjects;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 
@@ -18,15 +19,13 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
     
     public BillingPeriod BillingPeriod { get; set; }
     
-    public DateTime StartDate { get; set; }
-    
-    public DateTime EndDate { get; set; }
+    public DateRange SubscriptionPeriod { get; set; }
     
     public DateTime? NextBillingDate { get; set; }
     
     public bool AutoRenew { get; set; }
     
-    public decimal Price { get; set; }
+    public Money Price { get; set; }
     
     public SubscriptionStatus Status { get; set; }
     
@@ -44,14 +43,13 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Guid editionId,
         BillingPeriod billingPeriod,
         DateTime startDate,
-        decimal price,
+        Money price,
         bool autoRenew = true,
         int? trialDays = null) : base(id)
     {
         TenantId = tenantId;
         EditionId = editionId;
         BillingPeriod = billingPeriod;
-        StartDate = startDate;
         Price = price;
         AutoRenew = autoRenew;
         TrialDays = trialDays;
@@ -60,12 +58,13 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
         {
             Status = SubscriptionStatus.Trial;
             TrialEndDate = startDate.AddDays(trialDays.Value);
-            EndDate = TrialEndDate.Value;
+            SubscriptionPeriod = new DateRange(startDate, TrialEndDate.Value);
         }
         else
         {
             Status = SubscriptionStatus.Active;
-            EndDate = CalculateEndDate(startDate, billingPeriod);
+            var endDate = CalculateEndDate(startDate, billingPeriod);
+            SubscriptionPeriod = new DateRange(startDate, endDate);
         }
         
         NextBillingDate = CalculateNextBillingDate();
@@ -77,15 +76,23 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
         {
             // Transition from trial to active
             Status = SubscriptionStatus.Active;
-            StartDate = TrialEndDate.Value;
+            var endDate = CalculateEndDate(TrialEndDate.Value, BillingPeriod);
+            SubscriptionPeriod = new DateRange(TrialEndDate.Value, endDate);
         }
         else
         {
-            StartDate = EndDate;
+            SubscriptionPeriod = BillingPeriod == BillingPeriod.Yearly 
+                ? SubscriptionPeriod.ExtendByYears(1)
+                : SubscriptionPeriod.ExtendByMonths(1);
         }
         
-        EndDate = CalculateEndDate(StartDate, BillingPeriod);
         NextBillingDate = CalculateNextBillingDate();
+    }
+
+    public void Renew(Money newPrice)
+    {
+        Renew();
+        Price = newPrice;
     }
 
     public void Cancel()
@@ -111,6 +118,16 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
         AutoRenew = false;
     }
 
+    public bool IsActive()
+    {
+        return Status == SubscriptionStatus.Active && SubscriptionPeriod.IsActive();
+    }
+
+    public int DaysRemaining()
+    {
+        return SubscriptionPeriod.DaysRemaining();
+    }
+
     private DateTime CalculateEndDate(DateTime startDate, BillingPeriod period)
     {
         return period switch
@@ -128,14 +145,15 @@ public class Subscription : FullAuditedAggregateRoot<Guid>, IMultiTenant
             return null;
         }
 
-        return EndDate;
+        return SubscriptionPeriod.EndDate;
     }
 
-    public void UpdateBillingPeriod(BillingPeriod newPeriod, decimal newPrice)
+    public void UpdateBillingPeriod(BillingPeriod newPeriod, Money newPrice)
     {
         BillingPeriod = newPeriod;
         Price = newPrice;
-        EndDate = CalculateEndDate(StartDate, newPeriod);
+        var endDate = CalculateEndDate(SubscriptionPeriod.StartDate, newPeriod);
+        SubscriptionPeriod = new DateRange(SubscriptionPeriod.StartDate, endDate);
         NextBillingDate = CalculateNextBillingDate();
     }
 }
