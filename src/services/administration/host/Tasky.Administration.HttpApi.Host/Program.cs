@@ -22,15 +22,6 @@ public class Program
             var builder = WebApplication.CreateBuilder(args);
             builder.AddSharedEndpoints();
 
-            builder.AddNpgsqlDbContext<AdministrationDbContext>(
-                connectionName: TaskyNames.AdministrationDb,
-                configure => configure.DisableRetry = true
-            );
-            builder.AddNpgsqlDbContext<IdentityDbContext>(
-                connectionName: TaskyNames.IdentityServiceDb,
-                configure => configure.DisableRetry = true
-            );
-
             builder.Host.AddAppSettingsSecretsJson().UseAutofac().UseSerilog();
 
             await builder.AddApplicationAsync<AdministrationHttpApiHostModule>();
