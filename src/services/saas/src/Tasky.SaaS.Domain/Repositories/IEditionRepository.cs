@@ -1,5 +1,5 @@
 using System;
-using Tasky.SaaS.Entities;
+using Tasky.SaaS.Aggregates.EditionAggregate;
 using Volo.Abp.Domain.Repositories;
 
 namespace Tasky.SaaS.Repositories;

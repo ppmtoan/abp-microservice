@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Tasky.SaaS.Entities;
+using Tasky.SaaS.Aggregates.EditionAggregate;
+using Tasky.SaaS.Aggregates.SubscriptionAggregate;
+using Tasky.SaaS.Aggregates.BillingAggregate;
 using Volo.Abp.Domain.Repositories;
 
 namespace Tasky.SaaS.Repositories;
