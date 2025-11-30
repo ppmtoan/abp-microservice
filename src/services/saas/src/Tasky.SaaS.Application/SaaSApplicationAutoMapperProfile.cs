@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Tasky.SaaS.Editions;
-using Tasky.SaaS.Entities;
+using Tasky.SaaS.Aggregates.EditionAggregate;
+using Tasky.SaaS.Aggregates.SubscriptionAggregate;
+using Tasky.SaaS.Aggregates.BillingAggregate;
 using Tasky.SaaS.Invoices;
 using Tasky.SaaS.Subscriptions;
 using Tasky.SaaS.ValueObjects;

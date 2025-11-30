@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Tasky.SaaS.Entities;
+using Tasky.SaaS.Aggregates.EditionAggregate;
+using Tasky.SaaS.Aggregates.SubscriptionAggregate;
+using Tasky.SaaS.Aggregates.BillingAggregate;
 using Tasky.SaaS.Enums;
 using Tasky.SaaS.Permissions;
 using Tasky.SaaS.Repositories;
