@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Tasky.Administration;
 using Volo.Abp.Application;
 using Volo.Abp.AutoMapper;
+using Volo.Abp.Identity;
 using Volo.Abp.Modularity;
 using Volo.Abp.TenantManagement;
 
@@ -10,6 +11,7 @@ namespace Tasky.SaaS;
 [DependsOn(typeof(AbpAutoMapperModule))]
 [DependsOn(typeof(AbpDddApplicationModule))]
 [DependsOn(typeof(AbpTenantManagementApplicationModule))]
+[DependsOn(typeof(AbpIdentityApplicationModule))]
 [DependsOn(typeof(AdministrationApplicationModule))]
 [DependsOn(typeof(SaaSApplicationContractsModule))]
 [DependsOn(typeof(SaaSDomainModule))]
