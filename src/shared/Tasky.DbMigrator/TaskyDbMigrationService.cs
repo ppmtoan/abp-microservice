@@ -62,10 +62,20 @@ public class TaskyDbMigrationService(
     {
         _logger.LogInformation("Migrating tenants ...");
 
-        var tenants = await _tenantRepository.GetListAsync(
-            includeDetails: true,
-            cancellationToken: cancellationToken
-        );
+        List<Tenant> tenants;
+        try
+        {
+            tenants = await _tenantRepository.GetListAsync(
+                includeDetails: true,
+                cancellationToken: cancellationToken
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to get tenant list. Assuming no tenants exist yet.");
+            return;
+        }
+
         var migratedDatabaseSchemas = new HashSet<string>();
 
         foreach (var tenant in tenants)
