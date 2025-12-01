@@ -1,0 +1,167 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev, dev_tm/* ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      rabbitmq:
+        image: rabbitmq:3-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: admin
+          RABBITMQ_DEFAULT_PASS: admin
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics ping"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore src/Tasky.sln
+
+    - name: Build solution
+      run: dotnet build src/Tasky.sln --configuration Release --no-restore
+
+    - name: Run unit tests
+      run: dotnet test src/Tasky.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Test Results
+        path: '**/test-results.trx'
+        reporter: dotnet-trx
+
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore src/Tasky.sln
+
+    - name: Run code format check
+      run: dotnet format src/Tasky.sln --verify-no-changes --verbosity diagnostic
+
+  database-migrations:
+    name: Database Migrations Check
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install EF Core tools
+      run: dotnet tool install --global dotnet-ef
+
+    - name: Restore dependencies
+      run: dotnet restore src/Tasky.sln
+
+    - name: Create test databases
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE "Tasky_SaaS";'
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE "Tasky_Administration";'
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE "Tasky_Identity";'
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE "Tasky_Projects";'
+
+    - name: Run SaaS migrations
+      run: dotnet ef database update --project src/services/saas/host/Tasky.SaaS.HttpApi.Host
+
+    - name: Run Administration migrations
+      run: dotnet ef database update --project src/services/administration/host/Tasky.Administration.HttpApi.Host
+
+    - name: Run Identity migrations
+      run: dotnet ef database update --project src/services/identity/host/Tasky.IdentityService.HttpApi.Host
+
+    - name: Run Projects migrations
+      run: dotnet ef database update --project src/services/projects/host/Tasky.Projects.HttpApi.Host
