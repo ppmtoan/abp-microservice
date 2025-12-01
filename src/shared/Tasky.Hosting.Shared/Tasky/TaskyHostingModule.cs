@@ -106,12 +106,15 @@ public class TaskyHostingModule : AbpModule
         IConfiguration configuration
     )
     {
-        var redisConnection = configuration.GetConnectionString(TaskyNames.Redis) ?? "localhost:6379";
-        
-        context.Services.Configure<RedisCacheOptions>(options =>
+        var redisEnabled = configuration["Redis:IsEnabled"];
+        if (redisEnabled != null && bool.Parse(redisEnabled))
         {
-            options.Configuration = redisConnection;
-        });
+            var redisConfiguration = configuration["Redis:Configuration"];
+            context.Services.Configure<RedisCacheOptions>(options =>
+            {
+                options.Configuration = redisConfiguration;
+            });
+        }
     }
 
     private static void ConfigureDistributedLocking(
@@ -119,14 +122,17 @@ public class TaskyHostingModule : AbpModule
         IConfiguration configuration
     )
     {
-        context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+        var redisEnabled = configuration["Redis:IsEnabled"];
+        if (redisEnabled != null && bool.Parse(redisEnabled))
         {
-            // Default to localhost:6379 if not configured
-            var connectionString = configuration.GetConnectionString(TaskyNames.Redis) ?? "localhost:6379";
-            var connection = ConnectionMultiplexer.Connect(connectionString);
+            context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+            {
+                var connectionString = configuration["Redis:Configuration"];
+                var connection = ConnectionMultiplexer.Connect(connectionString);
 
-            return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
-        });
+                return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
+            });
+        }
     }
 }
 
@@ -143,10 +149,13 @@ public static class HostingExtensions
             .Services.AddDataProtection()
             .SetApplicationName(TaskyNames.Tasky);
         
-        // Use Redis for data protection keys in all environments (localhost for development)
-        var connectionString = configuration.GetConnectionString(TaskyNames.Redis) ?? "localhost:6379";
-        var redis = ConnectionMultiplexer.Connect(connectionString);
-        dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, $"{name}-Keys");
+        var redisEnabled = configuration["Redis:IsEnabled"];
+        if (redisEnabled != null && bool.Parse(redisEnabled))
+        {
+            var connectionString = configuration["Redis:Configuration"];
+            var redis = ConnectionMultiplexer.Connect(connectionString);
+            dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, $"{name}-Keys");
+        }
 
         return context;
     }
