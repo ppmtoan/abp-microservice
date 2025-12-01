@@ -17,7 +17,9 @@ using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.Data;
 using Volo.Abp.DistributedLocking;
+using Volo.Abp.EventBus.Kafka;
 using Volo.Abp.EventBus.RabbitMq;
+using Volo.Abp.Kafka;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
@@ -31,9 +33,10 @@ namespace Tasky;
 [DependsOn(typeof(AbpAutofacModule))]
 // [DependsOn(typeof(AbpBackgroundJobsRabbitMqModule))]  // Optional: Disabled for local development
 [DependsOn(typeof(AbpCachingStackExchangeRedisModule))]  // Enabled: Using local Redis
-[DependsOn(typeof(AbpDataModule))]
 [DependsOn(typeof(AbpDistributedLockingModule))]  // Required by OpenIddict
-// [DependsOn(typeof(AbpEventBusRabbitMqModule))]  // Optional: Disabled for local development
+// Event Bus: Choose one - Kafka (default) or RabbitMQ
+[DependsOn(typeof(AbpEventBusKafkaModule))]  // Enabled: Using Kafka for event bus
+// [DependsOn(typeof(AbpEventBusRabbitMqModule))]  // Alternative: Use RabbitMQ instead of Kafka
 [DependsOn(typeof(AbpSwashbuckleModule))]
 [DependsOn(typeof(TaskySharedModule))]
 public class TaskyHostingModule : AbpModule
@@ -89,6 +92,12 @@ public class TaskyHostingModule : AbpModule
             // Note: RabbitMQ is optional for local development
             // options.ClientName = configuration["RabbitMQ:EventBus:ClientName"]!;
             // options.ExchangeName = configuration["RabbitMQ:EventBus:ExchangeName"]!;
+        });
+
+        // Kafka configuration is read from appsettings.json Kafka section
+        Configure<AbpKafkaEventBusOptions>(options =>
+        {
+            options.ConnectionName = "Default";
         });
     }
 

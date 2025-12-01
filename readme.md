@@ -19,7 +19,7 @@ This is a monorepo-based microservice solution with the following services:
 - **Runtime**: .NET 9.0
 - **Database**: PostgreSQL 16 with EF Core 9.0.0
 - **Cache**: Redis 7
-- **Message Broker**: RabbitMQ 3
+- **Event Bus**: Apache Kafka 3.x (alternative: RabbitMQ 3)
 - **API Gateway**: YARP (Yet Another Reverse Proxy)
 - **Authentication**: OpenIddict
 
@@ -30,26 +30,28 @@ This is a monorepo-based microservice solution with the following services:
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [PostgreSQL 16](https://www.postgresql.org/download/)
 - [Redis 7](https://redis.io/download)
-- [RabbitMQ 3](https://www.rabbitmq.com/download.html)
+- [Apache Kafka 3.x](https://kafka.apache.org/downloads) (for event bus)
 - [Node.js 20.x](https://nodejs.org/) (optional, for npm scripts)
 
 ### Setup Steps
 
 #### 1. Install Infrastructure
 
-Install and start PostgreSQL, Redis, and RabbitMQ on your local machine.
+Install and start PostgreSQL, Redis, and Kafka on your local machine.
 
 **macOS (using Homebrew):**
 ```bash
-brew install postgresql@16 redis rabbitmq
+brew install postgresql@16 redis kafka
 brew services start postgresql@16
 brew services start redis
-brew services start rabbitmq
+brew services start zookeeper
+brew services start kafka
 ```
 
 **Windows (using Chocolatey):**
 ```bash
-choco install postgresql redis rabbitmq
+choco install postgresql redis
+# Download Kafka from https://kafka.apache.org/downloads
 ```
 
 #### 2. Restore and Build
@@ -248,8 +250,8 @@ public DateRangeDto SubscriptionPeriod { get; set; }
 | Projects API | http://localhost:7005 | Projects service |
 | PostgreSQL | localhost:5432 | Database server |
 | Redis | localhost:6379 | Cache server |
-| RabbitMQ | localhost:5672 | Message broker |
-| RabbitMQ UI | http://localhost:15672 | Management UI (admin/admin) |
+| Kafka | localhost:9092 | Event bus broker |
+| Zookeeper | localhost:2181 | Kafka coordination |
 
 ## 🧪 Testing
 
