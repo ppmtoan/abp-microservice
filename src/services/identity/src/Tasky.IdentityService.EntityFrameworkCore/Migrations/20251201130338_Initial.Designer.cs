@@ -13,8 +13,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Tasky.IdentityService.Migrations
 {
     [DbContext(typeof(IdentityServiceDbContext))]
-    [Migration("20241123002512_CreateDatabase")]
-    partial class CreateDatabase
+    [Migration("20251201130338_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
