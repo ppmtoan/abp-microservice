@@ -13,7 +13,7 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Tasky.SaaS.Migrations
 {
     [DbContext(typeof(SaaSDbContext))]
-    [Migration("20251201130251_Initial")]
+    [Migration("20251201142152_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
