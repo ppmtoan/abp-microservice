@@ -17,7 +17,9 @@ using Volo.Abp.Caching;
 using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.Data;
 using Volo.Abp.DistributedLocking;
+using Volo.Abp.EventBus.Kafka;
 using Volo.Abp.EventBus.RabbitMq;
+using Volo.Abp.Kafka;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
@@ -31,9 +33,10 @@ namespace Tasky;
 [DependsOn(typeof(AbpAutofacModule))]
 // [DependsOn(typeof(AbpBackgroundJobsRabbitMqModule))]  // Optional: Disabled for local development
 [DependsOn(typeof(AbpCachingStackExchangeRedisModule))]  // Enabled: Using local Redis
-[DependsOn(typeof(AbpDataModule))]
 [DependsOn(typeof(AbpDistributedLockingModule))]  // Required by OpenIddict
-// [DependsOn(typeof(AbpEventBusRabbitMqModule))]  // Optional: Disabled for local development
+// Event Bus: Choose one - Kafka (default) or RabbitMQ
+[DependsOn(typeof(AbpEventBusKafkaModule))]  // Enabled: Using Kafka for event bus
+// [DependsOn(typeof(AbpEventBusRabbitMqModule))]  // Alternative: Use RabbitMQ instead of Kafka
 [DependsOn(typeof(AbpSwashbuckleModule))]
 [DependsOn(typeof(TaskySharedModule))]
 public class TaskyHostingModule : AbpModule
@@ -90,6 +93,12 @@ public class TaskyHostingModule : AbpModule
             // options.ClientName = configuration["RabbitMQ:EventBus:ClientName"]!;
             // options.ExchangeName = configuration["RabbitMQ:EventBus:ExchangeName"]!;
         });
+
+        // Kafka configuration is read from appsettings.json Kafka section
+        Configure<AbpKafkaEventBusOptions>(options =>
+        {
+            options.ConnectionName = "Default";
+        });
     }
 
     private static void ConfigureRedisCache(
@@ -97,12 +106,15 @@ public class TaskyHostingModule : AbpModule
         IConfiguration configuration
     )
     {
-        var redisConnection = configuration.GetConnectionString(TaskyNames.Redis) ?? "localhost:6379";
-        
-        context.Services.Configure<RedisCacheOptions>(options =>
+        var redisEnabled = configuration["Redis:IsEnabled"];
+        if (redisEnabled != null && bool.Parse(redisEnabled))
         {
-            options.Configuration = redisConnection;
-        });
+            var redisConfiguration = configuration["Redis:Configuration"];
+            context.Services.Configure<RedisCacheOptions>(options =>
+            {
+                options.Configuration = redisConfiguration;
+            });
+        }
     }
 
     private static void ConfigureDistributedLocking(
@@ -110,14 +122,17 @@ public class TaskyHostingModule : AbpModule
         IConfiguration configuration
     )
     {
-        context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+        var redisEnabled = configuration["Redis:IsEnabled"];
+        if (redisEnabled != null && bool.Parse(redisEnabled))
         {
-            // Default to localhost:6379 if not configured
-            var connectionString = configuration.GetConnectionString(TaskyNames.Redis) ?? "localhost:6379";
-            var connection = ConnectionMultiplexer.Connect(connectionString);
+            context.Services.AddSingleton<IDistributedLockProvider>(sp =>
+            {
+                var connectionString = configuration["Redis:Configuration"];
+                var connection = ConnectionMultiplexer.Connect(connectionString);
 
-            return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
-        });
+                return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
+            });
+        }
     }
 }
 
@@ -134,10 +149,13 @@ public static class HostingExtensions
             .Services.AddDataProtection()
             .SetApplicationName(TaskyNames.Tasky);
         
-        // Use Redis for data protection keys in all environments (localhost for development)
-        var connectionString = configuration.GetConnectionString(TaskyNames.Redis) ?? "localhost:6379";
-        var redis = ConnectionMultiplexer.Connect(connectionString);
-        dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, $"{name}-Keys");
+        var redisEnabled = configuration["Redis:IsEnabled"];
+        if (redisEnabled != null && bool.Parse(redisEnabled))
+        {
+            var connectionString = configuration["Redis:Configuration"];
+            var redis = ConnectionMultiplexer.Connect(connectionString);
+            dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, $"{name}-Keys");
+        }
 
         return context;
     }

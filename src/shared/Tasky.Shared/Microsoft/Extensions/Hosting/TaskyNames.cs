@@ -7,6 +7,7 @@ public static class TaskyNames
     public const string Postgres = "postgres";
     public const string RabbitMq = "rabbitmq";
     public const string Redis = "redis";
+    public const string Kafka = "kafka";
     public const string Seq = "seq";
 
     public const string AdministrationApi = "TaskyAdministration";
