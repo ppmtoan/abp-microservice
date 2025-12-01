@@ -13,7 +13,7 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Tasky.SaaS.Migrations
 {
     [DbContext(typeof(SaaSDbContext))]
-    [Migration("20251201130251_Initial")]
+    [Migration("20251201144814_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -386,6 +386,7 @@ namespace Tasky.SaaS.Migrations
                                 .HasColumnName("Amount");
 
                             b1.Property<string>("Currency")
+                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
@@ -440,11 +441,14 @@ namespace Tasky.SaaS.Migrations
                                 .HasForeignKey("InvoiceId");
                         });
 
-                    b.Navigation("Amount");
+                    b.Navigation("Amount")
+                        .IsRequired();
 
-                    b.Navigation("BillingPeriodRange");
+                    b.Navigation("BillingPeriodRange")
+                        .IsRequired();
 
-                    b.Navigation("InvoiceNumber");
+                    b.Navigation("InvoiceNumber")
+                        .IsRequired();
 
                     b.Navigation("Subscription");
                 });
@@ -461,6 +465,7 @@ namespace Tasky.SaaS.Migrations
                                 .HasColumnName("MonthlyPrice");
 
                             b1.Property<string>("Currency")
+                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
@@ -485,6 +490,7 @@ namespace Tasky.SaaS.Migrations
                                 .HasColumnName("YearlyPrice");
 
                             b1.Property<string>("Currency")
+                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
@@ -540,11 +546,14 @@ namespace Tasky.SaaS.Migrations
                                 .HasForeignKey("EditionId");
                         });
 
-                    b.Navigation("FeatureLimits");
+                    b.Navigation("FeatureLimits")
+                        .IsRequired();
 
-                    b.Navigation("MonthlyPrice");
+                    b.Navigation("MonthlyPrice")
+                        .IsRequired();
 
-                    b.Navigation("YearlyPrice");
+                    b.Navigation("YearlyPrice")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Tasky.SaaS.Aggregates.SubscriptionAggregate.Subscription", b =>
@@ -565,6 +574,7 @@ namespace Tasky.SaaS.Migrations
                                 .HasColumnName("Price");
 
                             b1.Property<string>("Currency")
+                                .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
                                 .HasColumnType("character varying(3)")
@@ -602,9 +612,11 @@ namespace Tasky.SaaS.Migrations
 
                     b.Navigation("Edition");
 
-                    b.Navigation("Price");
+                    b.Navigation("Price")
+                        .IsRequired();
 
-                    b.Navigation("SubscriptionPeriod");
+                    b.Navigation("SubscriptionPeriod")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Volo.Abp.TenantManagement.TenantConnectionString", b =>

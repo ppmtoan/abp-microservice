@@ -1,0 +1,110 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Auth Server",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-authserver",
+      "program": "${workspaceFolder}/src/apps/Tasky.AuthServer/bin/Debug/net9.0/Tasky.AuthServer.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/apps/Tasky.AuthServer",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7000"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    },
+    {
+      "name": "Gateway",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-gateway",
+      "program": "${workspaceFolder}/src/gateway/Tasky.Gateway/bin/Debug/net9.0/Tasky.Gateway.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/gateway/Tasky.Gateway",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7001"
+      }
+    },
+    {
+      "name": "SaaS Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-saas",
+      "program": "${workspaceFolder}/src/services/saas/host/Tasky.SaaS.HttpApi.Host/bin/Debug/net9.0/Tasky.SaaS.HttpApi.Host.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/services/saas/host/Tasky.SaaS.HttpApi.Host",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7004"
+      }
+    },
+    {
+      "name": "Administration Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-administration",
+      "program": "${workspaceFolder}/src/services/administration/host/Tasky.Administration.HttpApi.Host/bin/Debug/net9.0/Tasky.Administration.HttpApi.Host.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/services/administration/host/Tasky.Administration.HttpApi.Host",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7002"
+      }
+    },
+    {
+      "name": "Identity Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-identity",
+      "program": "${workspaceFolder}/src/services/identity/host/Tasky.IdentityService.HttpApi.Host/bin/Debug/net9.0/Tasky.IdentityService.HttpApi.Host.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/services/identity/host/Tasky.IdentityService.HttpApi.Host",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7003"
+      }
+    },
+    {
+      "name": "Projects Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-projects",
+      "program": "${workspaceFolder}/src/services/projects/host/Tasky.Projects.HttpApi.Host/bin/Debug/net9.0/Tasky.Projects.HttpApi.Host.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/services/projects/host/Tasky.Projects.HttpApi.Host",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:7005"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "All Services",
+      "configurations": [
+        "Auth Server",
+        "Gateway",
+        "SaaS Service",
+        "Administration Service",
+        "Identity Service",
+        "Projects Service"
+      ],
+      "stopAll": true
+    }
+  ]
+}

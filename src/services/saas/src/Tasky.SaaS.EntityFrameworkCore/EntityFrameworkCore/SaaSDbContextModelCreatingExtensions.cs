@@ -33,27 +33,27 @@ public static class SaaSDbContextModelCreatingExtensions
             // Configure Money Value Objects
             b.OwnsOne(e => e.MonthlyPrice, money =>
             {
-                money.Property(m => m.Amount).HasColumnName("MonthlyPrice").HasColumnType("decimal(18,2)");
-                money.Property(m => m.Currency).HasColumnName("MonthlyCurrency").HasMaxLength(3).HasDefaultValue("USD");
-            });
+                money.Property(m => m.Amount).HasColumnName("MonthlyPrice").HasColumnType("decimal(18,2)").IsRequired();
+                money.Property(m => m.Currency).HasColumnName("MonthlyCurrency").HasMaxLength(3).HasDefaultValue("USD").IsRequired();
+            }).Navigation(e => e.MonthlyPrice).IsRequired();
             
             b.OwnsOne(e => e.YearlyPrice, money =>
             {
-                money.Property(m => m.Amount).HasColumnName("YearlyPrice").HasColumnType("decimal(18,2)");
-                money.Property(m => m.Currency).HasColumnName("YearlyCurrency").HasMaxLength(3).HasDefaultValue("USD");
-            });
+                money.Property(m => m.Amount).HasColumnName("YearlyPrice").HasColumnType("decimal(18,2)").IsRequired();
+                money.Property(m => m.Currency).HasColumnName("YearlyCurrency").HasMaxLength(3).HasDefaultValue("USD").IsRequired();
+            }).Navigation(e => e.YearlyPrice).IsRequired();
             
             // Configure FeatureLimits Value Object
             b.OwnsOne(e => e.FeatureLimits, limits =>
             {
-                limits.Property(l => l.MaxUsers).HasColumnName("MaxUsers");
-                limits.Property(l => l.MaxProjects).HasColumnName("MaxProjects");
-                limits.Property(l => l.StorageQuotaGB).HasColumnName("StorageQuotaGB");
-                limits.Property(l => l.APICallsPerMonth).HasColumnName("APICallsPerMonth");
-                limits.Property(l => l.EnableAdvancedReports).HasColumnName("EnableAdvancedReports");
-                limits.Property(l => l.EnablePrioritySupport).HasColumnName("EnablePrioritySupport");
-                limits.Property(l => l.EnableCustomBranding).HasColumnName("EnableCustomBranding");
-            });
+                limits.Property(l => l.MaxUsers).HasColumnName("MaxUsers").IsRequired();
+                limits.Property(l => l.MaxProjects).HasColumnName("MaxProjects").IsRequired();
+                limits.Property(l => l.StorageQuotaGB).HasColumnName("StorageQuotaGB").IsRequired();
+                limits.Property(l => l.APICallsPerMonth).HasColumnName("APICallsPerMonth").IsRequired();
+                limits.Property(l => l.EnableAdvancedReports).HasColumnName("EnableAdvancedReports").IsRequired();
+                limits.Property(l => l.EnablePrioritySupport).HasColumnName("EnablePrioritySupport").IsRequired();
+                limits.Property(l => l.EnableCustomBranding).HasColumnName("EnableCustomBranding").IsRequired();
+            }).Navigation(e => e.FeatureLimits).IsRequired();
             
             b.HasIndex(e => e.Name);
             b.HasIndex(e => e.IsActive);
@@ -68,16 +68,16 @@ public static class SaaSDbContextModelCreatingExtensions
             // Configure Money Value Object
             b.OwnsOne(s => s.Price, money =>
             {
-                money.Property(m => m.Amount).HasColumnName("Price").HasColumnType("decimal(18,2)");
-                money.Property(m => m.Currency).HasColumnName("Currency").HasMaxLength(3).HasDefaultValue("USD");
-            });
+                money.Property(m => m.Amount).HasColumnName("Price").HasColumnType("decimal(18,2)").IsRequired();
+                money.Property(m => m.Currency).HasColumnName("Currency").HasMaxLength(3).HasDefaultValue("USD").IsRequired();
+            }).Navigation(s => s.Price).IsRequired();
             
             // Configure DateRange Value Object
             b.OwnsOne(s => s.SubscriptionPeriod, period =>
             {
-                period.Property(p => p.StartDate).HasColumnName("StartDate");
-                period.Property(p => p.EndDate).HasColumnName("EndDate");
-            });
+                period.Property(p => p.StartDate).HasColumnName("StartDate").IsRequired();
+                period.Property(p => p.EndDate).HasColumnName("EndDate").IsRequired();
+            }).Navigation(s => s.SubscriptionPeriod).IsRequired();
             
             b.HasOne(s => s.Edition)
                 .WithMany(e => e.Subscriptions)
@@ -99,21 +99,21 @@ public static class SaaSDbContextModelCreatingExtensions
             b.OwnsOne(i => i.InvoiceNumber, number =>
             {
                 number.Property(n => n.Value).HasColumnName("InvoiceNumber").IsRequired().HasMaxLength(64);
-            });
+            }).Navigation(i => i.InvoiceNumber).IsRequired();
             
             // Configure Money Value Object
             b.OwnsOne(i => i.Amount, money =>
             {
-                money.Property(m => m.Amount).HasColumnName("Amount").HasColumnType("decimal(18,2)");
-                money.Property(m => m.Currency).HasColumnName("Currency").HasMaxLength(3).HasDefaultValue("USD");
-            });
+                money.Property(m => m.Amount).HasColumnName("Amount").HasColumnType("decimal(18,2)").IsRequired();
+                money.Property(m => m.Currency).HasColumnName("Currency").HasMaxLength(3).HasDefaultValue("USD").IsRequired();
+            }).Navigation(i => i.Amount).IsRequired();
             
             // Configure DateRange Value Object for Billing Period
             b.OwnsOne(i => i.BillingPeriodRange, period =>
             {
-                period.Property(p => p.StartDate).HasColumnName("PeriodStart");
-                period.Property(p => p.EndDate).HasColumnName("PeriodEnd");
-            });
+                period.Property(p => p.StartDate).HasColumnName("PeriodStart").IsRequired();
+                period.Property(p => p.EndDate).HasColumnName("PeriodEnd").IsRequired();
+            }).Navigation(i => i.BillingPeriodRange).IsRequired();
             
             b.Property(i => i.PaymentMethod).HasMaxLength(128);
             b.Property(i => i.PaymentReference).HasMaxLength(256);

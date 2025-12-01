@@ -14,14 +14,6 @@ internal class Program
 
         var builder = Host.CreateApplicationBuilder(args);
 
-
-        builder.AddNpgsqlDbContext<AdministrationDbContext>(
-            connectionName: TaskyNames.AdministrationDb
-        );
-        builder.AddNpgsqlDbContext<IdentityDbContext>(connectionName: TaskyNames.IdentityServiceDb);
-        builder.AddNpgsqlDbContext<SaaSDbContext>(connectionName: TaskyNames.SaaSDb);
-        builder.AddNpgsqlDbContext<ProjectsDbContext>(connectionName: TaskyNames.ProjectsDb);
-
         builder.Configuration.AddAppSettingsSecretsJson();
 
         builder.Logging.AddSerilog();
