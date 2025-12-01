@@ -14,6 +14,12 @@ public static class SaaSDbContextModelCreatingExtensions
     {
         Check.NotNull(builder, nameof(builder));
 
+        // Ignore value objects - they should only be configured as owned types
+        builder.Ignore<DateRange>();
+        builder.Ignore<Money>();
+        builder.Ignore<InvoiceNumber>();
+        builder.Ignore<FeatureLimits>();
+
         builder.Entity<Edition>(b =>
         {
             b.ToTable(SaaSDbProperties.DbTablePrefix + "Editions", SaaSDbProperties.DbSchema);
