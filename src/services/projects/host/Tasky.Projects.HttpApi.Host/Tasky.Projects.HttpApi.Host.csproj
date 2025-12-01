@@ -33,7 +33,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\shared\Tasky.Microservice.Shared\Tasky.Microservice.Shared.csproj" />
-        <ProjectReference Include="..\..\..\..\shared\Tasky.ServiceDefaults\Tasky.ServiceDefaults.csproj" />
         <ProjectReference Include="..\..\src\Tasky.Projects.HttpApi\Tasky.Projects.HttpApi.csproj" />
         <ProjectReference Include="..\..\src\Tasky.Projects.Application\Tasky.Projects.Application.csproj" />
         <ProjectReference Include="..\..\src\Tasky.Projects.EntityFrameworkCore\Tasky.Projects.EntityFrameworkCore.csproj" />

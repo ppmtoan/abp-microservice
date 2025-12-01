@@ -23,7 +23,6 @@ namespace Tasky.Projects;
 [DependsOn(typeof(ProjectsEntityFrameworkCoreModule))]
 [DependsOn(typeof(ProjectsHttpApiModule))]
 [DependsOn(typeof(TaskyMicroserviceModule))]
-[DependsOn(typeof(TaskyServiceDefaultsModule))]
 public class ProjectsHttpApiHostModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

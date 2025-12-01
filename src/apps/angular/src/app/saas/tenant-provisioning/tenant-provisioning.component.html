@@ -1,0 +1,126 @@
+<div class="card">
+  <div class="card-header">
+    <h3>{{ '::ProvisionNewTenant' | abpLocalization }}</h3>
+  </div>
+  <div class="card-body">
+    <!-- Progress Steps -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between">
+          <div class="text-center" [class.text-primary]="currentStep >= 1">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
+                 [class.bg-primary]="currentStep >= 1" 
+                 [class.bg-secondary]="currentStep < 1"
+                 style="width: 40px; height: 40px; color: white;">
+              1
+            </div>
+            <div class="mt-2 small">{{ '::TenantInfo' | abpLocalization }}</div>
+          </div>
+          <div class="text-center" [class.text-primary]="currentStep >= 2">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
+                 [class.bg-primary]="currentStep >= 2" 
+                 [class.bg-secondary]="currentStep < 2"
+                 style="width: 40px; height: 40px; color: white;">
+              2
+            </div>
+            <div class="mt-2 small">{{ '::PlanSelection' | abpLocalization }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="form">
+      <!-- Step 1: Tenant Information -->
+      <div *ngIf="currentStep === 1">
+        <h5 class="mb-3">{{ '::TenantInformation' | abpLocalization }}</h5>
+        
+        <div class="form-group">
+          <label for="tenantName">{{ '::TenantName' | abpLocalization }} *</label>
+          <input type="text" id="tenantName" class="form-control" formControlName="tenantName" 
+                 placeholder="company-name" />
+          <small class="form-text text-muted">{{ '::TenantNameHint' | abpLocalization }}</small>
+        </div>
+
+        <div class="form-group">
+          <label for="adminEmail">{{ '::AdminEmail' | abpLocalization }} *</label>
+          <input type="email" id="adminEmail" class="form-control" formControlName="adminEmail" />
+        </div>
+
+        <div class="form-group">
+          <label for="adminPassword">{{ '::AdminPassword' | abpLocalization }} *</label>
+          <input type="password" id="adminPassword" class="form-control" formControlName="adminPassword" />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">{{ '::ConfirmPassword' | abpLocalization }} *</label>
+          <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword" />
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-primary" (click)="nextStep()">
+            {{ '::Next' | abpLocalization }} <i class="fa fa-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Plan Selection -->
+      <div *ngIf="currentStep === 2">
+        <h5 class="mb-3">{{ '::SelectPlan' | abpLocalization }}</h5>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="editionId">{{ '::Edition' | abpLocalization }} *</label>
+              <select id="editionId" class="form-control" formControlName="editionId">
+                <option value="">{{ '::SelectEdition' | abpLocalization }}</option>
+                <option *ngFor="let edition of editions" [value]="edition.id">
+                  {{ edition.displayName }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="billingPeriod">{{ '::BillingPeriod' | abpLocalization }} *</label>
+              <select id="billingPeriod" class="form-control" formControlName="billingPeriod">
+                <option *ngFor="let period of billingPeriods" [value]="period.value">
+                  {{ period.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edition Details -->
+        <div *ngIf="getSelectedEdition()" class="card bg-light mb-3">
+          <div class="card-body">
+            <h6>{{ getSelectedEdition()?.displayName }}</h6>
+            <p class="mb-2">
+              <strong>{{ '::Price' | abpLocalization }}:</strong> 
+              {{ calculatePrice() | currency }}
+            </p>
+            <div *ngIf="getSelectedEdition()?.featureLimits">
+              <strong>{{ '::Features' | abpLocalization }}:</strong>
+              <ul class="mb-0">
+                <li *ngFor="let key of Object.keys(getSelectedEdition()!.featureLimits)">
+                  {{ key }}: {{ getSelectedEdition()!.featureLimits[key] }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" (click)="previousStep()">
+            <i class="fa fa-arrow-left me-1"></i> {{ '::Previous' | abpLocalization }}
+          </button>
+          <button type="button" class="btn btn-success" (click)="submitForm()" [disabled]="loading || form.invalid">
+            <i class="fa fa-check me-1"></i> {{ '::ProvisionTenant' | abpLocalization }}
+            <span *ngIf="loading" class="spinner-border spinner-border-sm ms-2"></span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

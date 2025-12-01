@@ -6,16 +6,9 @@ public static class HostApplicationBuilderExtensions
 {
     public static IHostApplicationBuilder AddSharedEndpoints(this IHostApplicationBuilder builder)
     {
-        builder.AddRabbitMQClient(
-            connectionName: TaskyNames.RabbitMq,
-            action =>
-                action.ConnectionString = builder.Configuration.GetConnectionString(
-                    TaskyNames.RabbitMq
-                )
-        );
-        builder.AddRedisDistributedCache(connectionName: TaskyNames.Redis);
-        builder.AddSeqEndpoint(connectionName: TaskyNames.Seq);
-
+        // Note: Without Aspire, service connections (RabbitMQ, Redis, Seq) are configured 
+        // directly in TaskyHostingModule via connection strings in appsettings.json
+        
         return builder;
     }
 }

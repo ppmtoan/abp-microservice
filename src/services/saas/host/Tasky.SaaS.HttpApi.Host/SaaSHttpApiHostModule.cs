@@ -19,7 +19,6 @@ namespace Tasky.SaaS;
 [DependsOn(typeof(SaaSEntityFrameworkCoreModule))]
 [DependsOn(typeof(SaaSHttpApiModule))]
 [DependsOn(typeof(TaskyMicroserviceModule))]
-[DependsOn(typeof(TaskyServiceDefaultsModule))]
 public class SaaSHttpApiHostModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

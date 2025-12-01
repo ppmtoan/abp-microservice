@@ -25,7 +25,6 @@ namespace Tasky.Administration;
 [DependsOn(typeof(IdentityServiceEntityFrameworkCoreModule))]
 [DependsOn(typeof(SaaSApplicationContractsModule))]
 [DependsOn(typeof(TaskyMicroserviceModule))]
-[DependsOn(typeof(TaskyServiceDefaultsModule))]
 public class AdministrationHttpApiHostModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

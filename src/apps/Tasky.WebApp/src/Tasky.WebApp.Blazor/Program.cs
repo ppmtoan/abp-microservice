@@ -12,7 +12,6 @@ internal class Program
     private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.AddServiceDefaults();
 
         //https://github.com/dotnet/aspnetcore/issues/52530
         builder.Services.Configure<RouteOptions>(options =>

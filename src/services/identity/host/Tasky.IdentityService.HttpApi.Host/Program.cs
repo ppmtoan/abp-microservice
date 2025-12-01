@@ -21,21 +21,7 @@ public class Program
             Log.Information("Starting web host.");
 
             var builder = WebApplication.CreateBuilder(args);
-            builder.AddServiceDefaults();
             builder.AddSharedEndpoints();
-
-            builder.AddNpgsqlDbContext<AdministrationDbContext>(
-                connectionName: TaskyNames.AdministrationDb,
-                configure => configure.DisableRetry = true
-            );
-            builder.AddNpgsqlDbContext<IdentityDbContext>(
-                connectionName: TaskyNames.IdentityServiceDb,
-                configure => configure.DisableRetry = true
-            );
-            builder.AddNpgsqlDbContext<SaaSDbContext>(
-                connectionName: TaskyNames.SaaSDb,
-                configure => configure.DisableRetry = true
-            );
 
             builder.Host.AddAppSettingsSecretsJson().UseAutofac().UseSerilog();
             await builder.AddApplicationAsync<IdentityServiceHttpApiHostModule>();
