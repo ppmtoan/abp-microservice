@@ -1,0 +1,41 @@
+{
+  "recommendations": [
+    // C# Development
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.vscodeintellicode-csharp",
+    
+    // Docker
+    "ms-azuretools.vscode-docker",
+    
+    // YAML
+    "redhat.vscode-yaml",
+    
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    
+    // Database
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+    
+    // EditorConfig
+    "editorconfig.editorconfig",
+    
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    
+    // REST Client
+    "humao.rest-client",
+    
+    // Better Comments
+    "aaron-bond.better-comments",
+    
+    // Path Intellisense
+    "christian-kohler.path-intellisense",
+    
+    // Todo Tree
+    "gruntfuggly.todo-tree"
+  ]
+}
