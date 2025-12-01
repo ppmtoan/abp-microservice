@@ -1,0 +1,71 @@
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">{{ '::Invoices' | abpLocalization }}</h5>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <ngx-datatable [rows]="invoices.items" [count]="invoices.totalCount" [list]="list" default>
+      <ngx-datatable-column [name]="'::InvoiceNumber' | abpLocalization" prop="invoiceNumber">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <strong>{{ row.invoiceNumber }}</strong>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::TenantName' | abpLocalization" prop="tenantName">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.tenantName }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Amount' | abpLocalization" prop="amount">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.amount | currency: row.currency }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="getStatusClass(row.status)">
+            {{ getStatusText(row.status) }}
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::IssueDate' | abpLocalization" prop="issueDate">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.issueDate | date: 'short' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::DueDate' | abpLocalization" prop="dueDate">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.dueDate | date: 'short' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::PaidDate' | abpLocalization" prop="paidDate">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.paidDate ? (row.paidDate | date: 'short') : '-' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [maxWidth]="180" [name]="'::Actions' | abpLocalization" [sortable]="false">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" ngbDropdownToggle>
+              <i class="fa fa-cog mr-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+            <div ngbDropdownMenu>
+              <button ngbDropdownItem (click)="markAsPaid(row.id)" *ngIf="row.status === 0 || row.status === 2">
+                <i class="fa fa-check mr-1"></i>{{ '::MarkAsPaid' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>

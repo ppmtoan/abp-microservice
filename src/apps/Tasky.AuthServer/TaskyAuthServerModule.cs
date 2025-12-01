@@ -11,9 +11,8 @@ using Volo.Abp;
 using Volo.Abp.Account;
 using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Auditing;
 using Volo.Abp.Autofac;
@@ -30,7 +29,7 @@ namespace Tasky;
 [DependsOn(typeof(AbpAccountApplicationModule))]
 [DependsOn(typeof(AbpAccountHttpApiModule))]
 [DependsOn(typeof(AbpAccountWebOpenIddictModule))]
-[DependsOn(typeof(AbpAspNetCoreMvcUiLeptonXLiteThemeModule))]
+[DependsOn(typeof(AbpAspNetCoreMvcUiBasicThemeModule))]
 [DependsOn(typeof(AbpAspNetCoreSerilogModule))]
 [DependsOn(typeof(AbpAutofacModule))]
 [DependsOn(typeof(AbpCachingStackExchangeRedisModule))]
@@ -40,7 +39,6 @@ namespace Tasky;
 [DependsOn(typeof(IdentityServiceEntityFrameworkCoreModule))]
 [DependsOn(typeof(SaaSEntityFrameworkCoreModule))]
 [DependsOn(typeof(TaskyMicroserviceModule))]
-[DependsOn(typeof(TaskyServiceDefaultsModule))]
 public class TaskyAuthServerModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
@@ -63,17 +61,6 @@ public class TaskyAuthServerModule : AbpModule
     {
         var hostingEnvironment = context.Services.GetHostingEnvironment();
         var configuration = context.Services.GetConfiguration();
-
-        Configure<AbpBundlingOptions>(options =>
-        {
-            options.StyleBundles.Configure(
-                LeptonXLiteThemeBundles.Styles.Global,
-                bundle =>
-                {
-                    bundle.AddFiles("/global-styles.css");
-                }
-            );
-        });
 
         Configure<AbpAuditingOptions>(options =>
         {

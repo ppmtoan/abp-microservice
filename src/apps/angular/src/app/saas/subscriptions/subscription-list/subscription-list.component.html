@@ -1,0 +1,74 @@
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">{{ '::Subscriptions' | abpLocalization }}</h5>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <ngx-datatable [rows]="subscriptions.items" [count]="subscriptions.totalCount" [list]="list" default>
+      <ngx-datatable-column [name]="'::TenantName' | abpLocalization" prop="tenantName">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.tenantName }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Edition' | abpLocalization" prop="editionName">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.editionName }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::BillingPeriod' | abpLocalization" prop="billingPeriod">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ getBillingPeriodText(row.billingPeriod) }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="status">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="getStatusClass(row.status)">
+            {{ getStatusText(row.status) }}
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::StartDate' | abpLocalization" prop="startDate">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.startDate | date: 'short' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::EndDate' | abpLocalization" prop="endDate">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.endDate | date: 'short' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::NextBillingDate' | abpLocalization" prop="nextBillingDate">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.nextBillingDate | date: 'short' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [maxWidth]="180" [name]="'::Actions' | abpLocalization" [sortable]="false">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" ngbDropdownToggle>
+              <i class="fa fa-cog mr-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+            <div ngbDropdownMenu>
+              <button ngbDropdownItem (click)="renewSubscription(row.id)" *ngIf="row.status === 0">
+                <i class="fa fa-refresh mr-1"></i>{{ '::Renew' | abpLocalization }}
+              </button>
+              <button ngbDropdownItem (click)="cancelSubscription(row.id)" *ngIf="row.status === 0">
+                <i class="fa fa-times mr-1"></i>{{ '::Cancel' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>

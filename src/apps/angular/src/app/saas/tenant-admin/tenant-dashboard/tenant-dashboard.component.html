@@ -1,0 +1,107 @@
+<div *ngIf="loading" class="text-center p-5">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+<div *ngIf="!loading && dashboard">
+  <!-- Subscription Info -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ '::SubscriptionInformation' | abpLocalization }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <strong>{{ '::Edition' | abpLocalization }}:</strong>
+            <span class="ms-2">{{ dashboard.editionName }}</span>
+          </div>
+          <div class="mb-3">
+            <strong>{{ '::Status' | abpLocalization }}:</strong>
+            <span class="ms-2 badge" [ngClass]="{
+              'bg-success': dashboard.subscriptionStatus === 'Active',
+              'bg-warning': dashboard.subscriptionStatus === 'Trial',
+              'bg-danger': dashboard.subscriptionStatus === 'Cancelled' || dashboard.subscriptionStatus === 'PastDue',
+              'bg-secondary': dashboard.subscriptionStatus === 'Suspended'
+            }">
+              {{ dashboard.subscriptionStatus }}
+            </span>
+          </div>
+          <div class="mb-3">
+            <strong>{{ '::EndDate' | abpLocalization }}:</strong>
+            <span class="ms-2">{{ dashboard.subscriptionEndDate | date: 'medium' }}</span>
+          </div>
+          <div class="mb-3">
+            <strong>{{ '::NextBillingDate' | abpLocalization }}:</strong>
+            <span class="ms-2">{{ dashboard.nextBillingDate | date: 'medium' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">{{ '::Usage' | abpLocalization }}</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <strong>{{ '::CurrentUsers' | abpLocalization }}:</strong>
+            <span class="ms-2">{{ dashboard.currentUserCount }}</span>
+          </div>
+          <div class="mb-2">
+            <strong>{{ '::FeatureLimits' | abpLocalization }}:</strong>
+          </div>
+          <div class="ms-3">
+            <div *ngFor="let key of getFeatureLimitKeys()" class="mb-2">
+              <span class="badge bg-secondary">{{ key }}</span>: {{ dashboard.featureLimits[key] }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Invoices -->
+  <div class="card" *ngIf="dashboard.pendingInvoices && dashboard.pendingInvoices.length > 0">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0">{{ '::PendingInvoices' | abpLocalization }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>{{ '::InvoiceNumber' | abpLocalization }}</th>
+              <th>{{ '::Amount' | abpLocalization }}</th>
+              <th>{{ '::DueDate' | abpLocalization }}</th>
+              <th>{{ '::Status' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let invoice of dashboard.pendingInvoices">
+              <td>{{ invoice.invoiceNumber }}</td>
+              <td>{{ invoice.amount | currency }}</td>
+              <td>{{ invoice.dueDate | date: 'short' }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-warning': invoice.status === 'Pending',
+                  'bg-success': invoice.status === 'Paid',
+                  'bg-danger': invoice.status === 'Overdue',
+                  'bg-secondary': invoice.status === 'Cancelled'
+                }">
+                  {{ invoice.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loading && !dashboard" class="alert alert-info">
+  {{ '::NoSubscriptionFound' | abpLocalization }}
+</div>

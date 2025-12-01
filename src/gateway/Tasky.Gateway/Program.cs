@@ -9,7 +9,6 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.AddServiceDefaults();
 
         builder.Services.AddOpenApi(options =>
         {

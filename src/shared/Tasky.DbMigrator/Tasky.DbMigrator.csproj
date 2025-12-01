@@ -32,7 +32,6 @@
         <ProjectReference Include="..\..\services\saas\src\Tasky.SaaS.Application.Contracts\Tasky.SaaS.Application.Contracts.csproj" />
         <ProjectReference Include="..\..\services\saas\src\Tasky.SaaS.EntityFrameworkCore\Tasky.SaaS.EntityFrameworkCore.csproj" />
         <ProjectReference Include="..\Tasky.Microservice.Shared\Tasky.Microservice.Shared.csproj" />
-        <ProjectReference Include="..\Tasky.ServiceDefaults\Tasky.ServiceDefaults.csproj" />
         <ProjectReference Include="..\Tasky.Shared\Tasky.Shared.csproj" />
     </ItemGroup>
 

@@ -1,0 +1,26 @@
+{
+  "name": "tasky-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:all": "dotnet build src/Tasky.sln",
+    "build:saas": "dotnet build src/services/saas/host/Tasky.SaaS.HttpApi.Host/Tasky.SaaS.HttpApi.Host.csproj",
+    "build:admin": "dotnet build src/services/administration/host/Tasky.Administration.HttpApi.Host/Tasky.Administration.HttpApi.Host.csproj",
+    "build:identity": "dotnet build src/services/identity/host/Tasky.IdentityService.HttpApi.Host/Tasky.IdentityService.HttpApi.Host.csproj",
+    "build:projects": "dotnet build src/services/projects/host/Tasky.Projects.HttpApi.Host/Tasky.Projects.HttpApi.Host.csproj",
+    "build:gateway": "dotnet build src/gateway/Tasky.Gateway/Tasky.Gateway.csproj",
+    "build:authserver": "dotnet build src/apps/Tasky.AuthServer/Tasky.AuthServer.csproj",
+    "test:all": "dotnet test src/Tasky.sln",
+    "clean": "dotnet clean src/Tasky.sln && find . -name 'bin' -o -name 'obj' | xargs rm -rf",
+    "restore": "dotnet restore src/Tasky.sln",
+    "migrate:saas": "cd src/services/saas/src/Tasky.SaaS.EntityFrameworkCore && dotnet ef database update --startup-project ../../host/Tasky.SaaS.HttpApi.Host",
+    "migrate:admin": "cd src/services/administration/src/Tasky.Administration.EntityFrameworkCore && dotnet ef database update --startup-project ../../host/Tasky.Administration.HttpApi.Host",
+    "migrate:identity": "cd src/services/identity/src/Tasky.IdentityService.EntityFrameworkCore && dotnet ef database update --startup-project ../../host/Tasky.IdentityService.HttpApi.Host",
+    "migrate:projects": "cd src/services/projects/src/Tasky.Projects.EntityFrameworkCore && dotnet ef database update --startup-project ../../host/Tasky.Projects.HttpApi.Host",
+    "migrate:all": "npm run migrate:admin && npm run migrate:identity && npm run migrate:projects && npm run migrate:saas",
+    "start:all": "bash src/start-services.sh",
+    "format": "dotnet format src/Tasky.sln"
+  },
+  "devDependencies": {},
+  "description": "Tasky ABP Microservice Monorepo"
+}

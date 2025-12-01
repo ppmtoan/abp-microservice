@@ -21,7 +21,6 @@ namespace Tasky.IdentityService;
 [DependsOn(typeof(IdentityServiceHttpApiModule))]
 [DependsOn(typeof(SaaSEntityFrameworkCoreModule))]
 [DependsOn(typeof(TaskyMicroserviceModule))]
-[DependsOn(typeof(TaskyServiceDefaultsModule))]
 public class IdentityServiceHttpApiHostModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

@@ -1,6 +1,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Tasky.SaaS.EntityFrameworkCore.Repositories;
+using Tasky.SaaS.Repositories;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.PostgreSql;
@@ -41,6 +43,9 @@ public class SaaSEntityFrameworkCoreModule : AbpModule
             options.ReplaceDbContext<ITenantManagementDbContext>();
 
             options.AddDefaultRepositories(true);
+            
+            // Register custom repositories
+            options.AddRepository<Tasky.SaaS.Aggregates.SubscriptionAggregate.Subscription, SubscriptionRepository>();
         });
     }
 }

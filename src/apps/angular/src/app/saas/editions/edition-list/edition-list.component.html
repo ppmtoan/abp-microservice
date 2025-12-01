@@ -1,0 +1,70 @@
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">{{ '::SaaS:Editions' | abpLocalization }}</h5>
+      </div>
+      <div class="text-end col col-md-6">
+        <button class="btn btn-primary" type="button" (click)="createEdition()">
+          <i class="fa fa-plus mr-1"></i>
+          <span>{{ '::NewEdition' | abpLocalization }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <ngx-datatable [rows]="editions.items" [count]="editions.totalCount" [list]="list" default>
+      <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.name }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::DisplayName' | abpLocalization" prop="displayName">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.displayName }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::MonthlyPrice' | abpLocalization" prop="monthlyPrice">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.monthlyPrice | currency }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::YearlyPrice' | abpLocalization" prop="yearlyPrice">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.yearlyPrice | currency }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="isActive">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="row.isActive ? 'bg-success' : 'bg-secondary'">
+            {{ row.isActive ? '::Active' : '::Inactive' | abpLocalization }}
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [maxWidth]="150" [name]="'::Actions' | abpLocalization" [sortable]="false">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" ngbDropdownToggle>
+              <i class="fa fa-cog mr-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+            <div ngbDropdownMenu>
+              <button ngbDropdownItem (click)="editEdition(row.id)">
+                {{ '::Edit' | abpLocalization }}
+              </button>
+              <button ngbDropdownItem (click)="delete(row.id)">
+                {{ '::Delete' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+
+<app-edition-form [(visible)]="isModalOpen" [edition]="selectedEdition" (save)="list.get()"></app-edition-form>

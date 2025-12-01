@@ -24,6 +24,259 @@ namespace Tasky.SaaS.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.BillingAggregate.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BillingPeriod")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<DateTime>("InvoiceDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<DateTime?>("PaidDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PaymentReference")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DueDate");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SaaSInvoices", (string)null);
+                });
+
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.EditionAggregate.Edition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("SaaSEditions", (string)null);
+                });
+
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.SubscriptionAggregate.Subscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AutoRenew")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("BillingPeriod")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<Guid>("EditionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<DateTime?>("NextBillingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("TenantId");
+
+                    b.Property<int?>("TrialDays")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("TrialEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EditionId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("SaaSSubscriptions", (string)null);
+                });
+
             modelBuilder.Entity("Volo.Abp.TenantManagement.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -112,6 +365,257 @@ namespace Tasky.SaaS.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.BillingAggregate.Invoice", b =>
+                {
+                    b.HasOne("Tasky.SaaS.Aggregates.SubscriptionAggregate.Subscription", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.Money", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("InvoiceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasDefaultValue("USD")
+                                .HasColumnName("Currency");
+
+                            b1.HasKey("InvoiceId");
+
+                            b1.ToTable("SaaSInvoices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId");
+                        });
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.DateRange", "BillingPeriodRange", b1 =>
+                        {
+                            b1.Property<Guid>("InvoiceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("EndDate")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("PeriodEnd");
+
+                            b1.Property<DateTime>("StartDate")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("PeriodStart");
+
+                            b1.HasKey("InvoiceId");
+
+                            b1.ToTable("SaaSInvoices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId");
+                        });
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.InvoiceNumber", "InvoiceNumber", b1 =>
+                        {
+                            b1.Property<Guid>("InvoiceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(64)
+                                .HasColumnType("character varying(64)")
+                                .HasColumnName("InvoiceNumber");
+
+                            b1.HasKey("InvoiceId");
+
+                            b1.ToTable("SaaSInvoices");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId");
+                        });
+
+                    b.Navigation("Amount")
+                        .IsRequired();
+
+                    b.Navigation("BillingPeriodRange")
+                        .IsRequired();
+
+                    b.Navigation("InvoiceNumber")
+                        .IsRequired();
+
+                    b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.EditionAggregate.Edition", b =>
+                {
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.Money", "MonthlyPrice", b1 =>
+                        {
+                            b1.Property<Guid>("EditionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("MonthlyPrice");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasDefaultValue("USD")
+                                .HasColumnName("MonthlyCurrency");
+
+                            b1.HasKey("EditionId");
+
+                            b1.ToTable("SaaSEditions");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EditionId");
+                        });
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.Money", "YearlyPrice", b1 =>
+                        {
+                            b1.Property<Guid>("EditionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("YearlyPrice");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasDefaultValue("USD")
+                                .HasColumnName("YearlyCurrency");
+
+                            b1.HasKey("EditionId");
+
+                            b1.ToTable("SaaSEditions");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EditionId");
+                        });
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.FeatureLimits", "FeatureLimits", b1 =>
+                        {
+                            b1.Property<Guid>("EditionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("APICallsPerMonth")
+                                .HasColumnType("integer")
+                                .HasColumnName("APICallsPerMonth");
+
+                            b1.Property<bool>("EnableAdvancedReports")
+                                .HasColumnType("boolean")
+                                .HasColumnName("EnableAdvancedReports");
+
+                            b1.Property<bool>("EnableCustomBranding")
+                                .HasColumnType("boolean")
+                                .HasColumnName("EnableCustomBranding");
+
+                            b1.Property<bool>("EnablePrioritySupport")
+                                .HasColumnType("boolean")
+                                .HasColumnName("EnablePrioritySupport");
+
+                            b1.Property<int>("MaxProjects")
+                                .HasColumnType("integer")
+                                .HasColumnName("MaxProjects");
+
+                            b1.Property<int>("MaxUsers")
+                                .HasColumnType("integer")
+                                .HasColumnName("MaxUsers");
+
+                            b1.Property<int>("StorageQuotaGB")
+                                .HasColumnType("integer")
+                                .HasColumnName("StorageQuotaGB");
+
+                            b1.HasKey("EditionId");
+
+                            b1.ToTable("SaaSEditions");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EditionId");
+                        });
+
+                    b.Navigation("FeatureLimits")
+                        .IsRequired();
+
+                    b.Navigation("MonthlyPrice")
+                        .IsRequired();
+
+                    b.Navigation("YearlyPrice")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.SubscriptionAggregate.Subscription", b =>
+                {
+                    b.HasOne("Tasky.SaaS.Aggregates.EditionAggregate.Edition", "Edition")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("EditionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.Money", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("SubscriptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Price");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasDefaultValue("USD")
+                                .HasColumnName("Currency");
+
+                            b1.HasKey("SubscriptionId");
+
+                            b1.ToTable("SaaSSubscriptions");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SubscriptionId");
+                        });
+
+                    b.OwnsOne("Tasky.SaaS.ValueObjects.DateRange", "SubscriptionPeriod", b1 =>
+                        {
+                            b1.Property<Guid>("SubscriptionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("EndDate")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("EndDate");
+
+                            b1.Property<DateTime>("StartDate")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("StartDate");
+
+                            b1.HasKey("SubscriptionId");
+
+                            b1.ToTable("SaaSSubscriptions");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SubscriptionId");
+                        });
+
+                    b.Navigation("Edition");
+
+                    b.Navigation("Price")
+                        .IsRequired();
+
+                    b.Navigation("SubscriptionPeriod")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Volo.Abp.TenantManagement.TenantConnectionString", b =>
                 {
                     b.HasOne("Volo.Abp.TenantManagement.Tenant", null)
@@ -119,6 +623,11 @@ namespace Tasky.SaaS.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Tasky.SaaS.Aggregates.EditionAggregate.Edition", b =>
+                {
+                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("Volo.Abp.TenantManagement.Tenant", b =>

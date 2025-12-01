@@ -1,0 +1,132 @@
+<div class="row" *ngIf="metrics">
+  <!-- Metrics Cards -->
+  <div class="col-md-3">
+    <div class="card bg-primary text-white mb-3">
+      <div class="card-body">
+        <h6 class="card-title">{{ '::TotalTenants' | abpLocalization }}</h6>
+        <h3>{{ metrics.totalTenants }}</h3>
+        <small>{{ metrics.activeTenants }} {{ '::Active' | abpLocalization }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card bg-success text-white mb-3">
+      <div class="card-body">
+        <h6 class="card-title">{{ '::ActiveSubscriptions' | abpLocalization }}</h6>
+        <h3>{{ metrics.activeSubscriptions }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card bg-info text-white mb-3">
+      <div class="card-body">
+        <h6 class="card-title">{{ '::MRR' | abpLocalization }}</h6>
+        <h3>{{ metrics.totalMRR | currency }}</h3>
+        <small>{{ '::MonthlyRecurringRevenue' | abpLocalization }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card bg-warning text-white mb-3">
+      <div class="card-body">
+        <h6 class="card-title">{{ '::ARR' | abpLocalization }}</h6>
+        <h3>{{ metrics.totalARR | currency }}</h3>
+        <small>{{ '::AnnualRecurringRevenue' | abpLocalization }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title">{{ '::NewTenantsThisMonth' | abpLocalization }}</h6>
+        <h3>{{ metrics.newTenantsThisMonth }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title">{{ '::ChurnRate' | abpLocalization }}</h6>
+        <h3>{{ metrics.churnRate }}%</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tenants List -->
+<div class="card">
+  <div class="card-header">
+    <h5>{{ '::Tenants' | abpLocalization }}</h5>
+  </div>
+  <div class="card-body">
+    <ngx-datatable [rows]="tenants.items" [count]="tenants.totalCount" [list]="list" default>
+      <ngx-datatable-column [name]="'::Name' | abpLocalization" prop="name">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.name }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Edition' | abpLocalization" prop="editionName">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.editionName || '-' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::SubscriptionStatus' | abpLocalization" prop="subscriptionStatus">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="{
+            'bg-success': row.subscriptionStatus === 'Active',
+            'bg-warning': row.subscriptionStatus === 'Trial',
+            'bg-danger': row.subscriptionStatus === 'Cancelled' || row.subscriptionStatus === 'PastDue',
+            'bg-secondary': row.subscriptionStatus === 'Suspended'
+          }">
+            {{ row.subscriptionStatus || '-' }}
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::TotalRevenue' | abpLocalization" prop="totalRevenue">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.totalRevenue | currency }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::Status' | abpLocalization" prop="isActive">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="row.isActive ? 'bg-success' : 'bg-secondary'">
+            {{ row.isActive ? '::Active' : '::Inactive' | abpLocalization }}
+          </span>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::CreationTime' | abpLocalization" prop="creationTime">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.creationTime | date: 'short' }}
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [maxWidth]="180" [name]="'::Actions' | abpLocalization" [sortable]="false">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" ngbDropdownToggle>
+              <i class="fa fa-cog mr-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+            <div ngbDropdownMenu>
+              <button ngbDropdownItem *ngIf="!row.isActive" (click)="activateTenant(row.id)">
+                {{ '::Activate' | abpLocalization }}
+              </button>
+              <button ngbDropdownItem *ngIf="row.isActive" (click)="deactivateTenant(row.id)">
+                {{ '::Deactivate' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
